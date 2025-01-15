@@ -1,0 +1,21 @@
+CompileFlags:
+  Compiler: clang++
+  Add: [-Weverything -Wall -Wextra -Wpedantic -Werror -std=c++23]
+  Remove: [-Wc++98-compat]
+Hover:
+  ShowAKA: Yes
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: Strict
+    Add: [modernize-*, bugprone-*, performance-*, readability-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,bugprone-*,performance-*,readability-*]
+    Remove: [readability-magic-numbers, bugprone-easily-swappable-parameters, bugprone-forwarding-reference-overload, fuchsia*, llvmlibc*, altera*,
+              cppcoreguidelines-owning-memory]
+    CheckOptions:
+      readability-identifier-naming: lower_case
+Index:
+  Background: Build
+InlayHints:
+  BlockEnd: Yes
+If:
+  PathMatch: '.*\.[ch](pp)?$'
+  PathExclude: '.*(build|/usr/include)/.*'
