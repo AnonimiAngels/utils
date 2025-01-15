@@ -35,7 +35,7 @@
 #include <thread>
 #include <cstdint>
 
-#include "loggers.hpp"
+#include "common/loggers.hpp"
 
 template <class T> class precision_timer
 {
