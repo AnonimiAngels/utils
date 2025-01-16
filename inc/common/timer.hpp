@@ -35,133 +35,80 @@
 #include <thread>
 #include <cstdint>
 
-#include "common/loggers.hpp"
-
-template <class T> class precision_timer
+namespace utils
 {
-  public:
-	using m_type	   = T;
-	using m_crtype	   = const m_type&;
-	using m_type_tick  = std::uint64_t;
-	using m_type_point = std::chrono::steady_clock::time_point;
-
-	precision_timer() : precision_timer(m_type(0), true) {}
-	precision_timer(bool auto_start) : precision_timer(m_type(0), auto_start) {}
-	precision_timer(m_crtype elapse_time, bool auto_start = true) { self_init(auto_start, elapse_time, get_now()); }
-
-	auto start() -> void
+	template <class T> class precision_timer
 	{
-		m_start_time = get_now();
-		m_started	 = true;
-	}
+	  public:
+		using m_type	   = T;
+		using m_crtype	   = const m_type&;
+		using m_type_tick  = std::uint64_t;
+		using m_type_point = std::chrono::steady_clock::time_point;
 
-	auto stop() -> void
-	{
-		m_started = false;
-		m_elapsed = std::chrono::duration_cast<m_type>(get_now() - m_start_time);
-	}
+		precision_timer() : precision_timer(m_type(0), true) {}
+		precision_timer(bool auto_start) : precision_timer(m_type(0), auto_start) {}
+		precision_timer(m_crtype elapse_time, bool auto_start = true) { self_init(auto_start, elapse_time, get_now()); }
 
-	[[nodiscard]] auto is_started() const -> bool { return m_started; }
+		auto start() -> void
+		{
+			m_start_time = get_now();
+			m_started	 = true;
+		}
 
-	auto is_elapsed() -> bool { return get_elapsed() >= m_elapse; }
+		auto stop() -> void
+		{
+			m_started = false;
+			m_elapsed = std::chrono::duration_cast<m_type>(get_now() - m_start_time);
+		}
 
-	auto restart() -> void { m_start_time = get_now(); }
+		[[nodiscard]] auto is_started() const -> bool { return m_started; }
 
-	auto set_elapse(m_crtype elapse_time) -> void { m_elapse = elapse_time; }
+		auto is_elapsed() -> bool { return get_elapsed() >= m_elapse; }
 
-	auto set_elapse(m_type_tick elapse_time) -> void { m_elapse = m_type(elapse_time); }
+		auto restart() -> void { m_start_time = get_now(); }
 
-	[[nodiscard]] auto get_elapse() const -> m_crtype { return m_elapse; }
+		auto set_elapse(m_crtype elapse_time) -> void { m_elapse = elapse_time; }
 
-	auto get_elapsed() -> m_crtype
-	{
-		if (m_started) { m_elapsed = std::chrono::duration_cast<m_type>(get_now() - m_start_time); }
-		return m_elapsed;
-	}
+		auto set_elapse(m_type_tick elapse_time) -> void { m_elapse = m_type(elapse_time); }
 
-	auto get_elapsed_and_restart() -> m_crtype
-	{
-		get_elapsed();
-		restart();
-		return m_elapsed;
-	}
+		[[nodiscard]] auto get_elapse() const -> m_crtype { return m_elapse; }
 
-	auto get_ticks() -> m_type_tick { return get_elapsed().count(); }
-	template <typename in_ret_t> [[nodiscard]] constexpr auto get_as() -> in_ret_t { return std::chrono::duration_cast<in_ret_t>(get_elapsed()); }
+		auto get_elapsed() -> m_crtype
+		{
+			if (m_started) { m_elapsed = std::chrono::duration_cast<m_type>(get_now() - m_start_time); }
+			return m_elapsed;
+		}
 
-	template <typename U> auto wait_elapse(U in_sleep_time) -> void
-	{
-		while (!is_elapsed()) { std::this_thread::sleep_for(in_sleep_time); }
-	}
+		auto get_elapsed_and_restart() -> m_crtype
+		{
+			get_elapsed();
+			restart();
+			return m_elapsed;
+		}
 
-  private:
-	static auto get_now() -> m_type_point { return std::chrono::steady_clock::now(); }
+		auto get_ticks() -> m_type_tick { return get_elapsed().count(); }
+		template <typename in_ret_t> [[nodiscard]] constexpr auto get_as() -> in_ret_t { return std::chrono::duration_cast<in_ret_t>(get_elapsed()); }
 
-	auto self_init(bool in_auto_start, m_type in_elapse, m_type_point in_start) -> void
-	{
-		m_started	 = in_auto_start;
-		m_elapse	 = in_elapse;
-		m_elapsed	 = m_type(0);
-		m_start_time = in_start;
-	}
+		template <typename U> auto wait_elapse(U in_sleep_time) -> void
+		{
+			while (!is_elapsed()) { std::this_thread::sleep_for(in_sleep_time); }
+		}
 
-	m_type m_elapse{};
-	m_type m_elapsed{};
-	m_type_point m_start_time;
-	bool m_started{};
-};
+	  private:
+		static auto get_now() -> m_type_point { return std::chrono::steady_clock::now(); }
 
-struct bench
-{
-  public:
-	using bench_t = std::chrono::nanoseconds;
+		auto self_init(bool in_auto_start, m_type in_elapse, m_type_point in_start) -> void
+		{
+			m_started	 = in_auto_start;
+			m_elapse	 = in_elapse;
+			m_elapsed	 = m_type(0);
+			m_start_time = in_start;
+		}
 
-	bench_t total_elapsed = bench_t::zero();
-	bench_t min_elapsed	  = bench_t::max();
-	bench_t max_elapsed	  = bench_t::min();
-	bench_t median_elapsed;
-
-	std::size_t count = 1;
-
-	auto update(const bench_t& in_elapsed) -> void
-	{
-		total_elapsed += in_elapsed;
-		min_elapsed	   = std::min(min_elapsed, in_elapsed);
-		max_elapsed	   = std::max(max_elapsed, in_elapsed);
-		median_elapsed = total_elapsed / count;
-
-		++count;
-	}
-
-	[[nodiscard]] auto get_total() const -> bench_t { return total_elapsed; }
-	[[nodiscard]] auto get_count() const -> std::size_t { return count; }
-	[[nodiscard]] auto get_min() const -> bench_t { return min_elapsed; }
-	[[nodiscard]] auto get_max() const -> bench_t { return max_elapsed; }
-	[[nodiscard]] auto get_median() const -> bench_t { return median_elapsed; }
-
-	auto operator<(const bench& in_bench) const -> bool { return get_median() < in_bench.get_median(); }
-	auto operator>(const bench& in_bench) const -> bool { return get_median() > in_bench.get_median(); }
-	auto operator==(const bench& in_bench) const -> bool { return get_median() == in_bench.get_median(); }
-	auto operator!=(const bench& in_bench) const -> bool { return get_median() != in_bench.get_median(); }
-	auto operator<=(const bench& in_bench) const -> bool { return get_median() <= in_bench.get_median(); }
-	auto operator>=(const bench& in_bench) const -> bool { return get_median() >= in_bench.get_median(); }
-	auto operator<=>(const bench& in_bench) const -> std::strong_ordering { return get_median() <=> in_bench.get_median(); }
-
-	auto operator+(const bench& in_bench) const -> bench
-	{
-		bench l_bench;
-		l_bench.total_elapsed = total_elapsed + in_bench.total_elapsed;
-		l_bench.count		  = count + in_bench.count;
-		return l_bench;
-	}
-
-	auto operator-(const bench& in_bench) const -> bench
-	{
-		bench l_bench;
-		l_bench.total_elapsed = total_elapsed - in_bench.total_elapsed;
-		l_bench.count		  = count - in_bench.count;
-		return l_bench;
-	}
-};
-
+		m_type m_elapse{};
+		m_type m_elapsed{};
+		m_type_point m_start_time;
+		bool m_started{};
+	};
+} // namespace utils
 #endif // TIMER_HPP
