@@ -11,9 +11,16 @@ function(proccess_deps OUT_LIBS OUT_INCS)
 	CPMAddPackage(
 		NAME spdlog
 		GITHUB_REPOSITORY gabime/spdlog
-		VERSION 1.9.2
+		GIT_TAG v1.15.1
 	)
 	list(APPEND L_LIBS spdlog)
+
+	CPMAddPackage(
+		NAME fmt
+		GITHUB_REPOSITORY fmtlib/fmt
+		GIT_TAG 11.1.4
+	)
+	list(APPEND L_LIBS fmt)
 
 	# Ensure variables are set in the parent scope
 	set(${OUT_LIBS} ${L_LIBS} PARENT_SCOPE)

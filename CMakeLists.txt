@@ -7,7 +7,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 set(LOGS_ENABLED OFF)
 set(USE_CCACHE ON)
-set(CCACHE_OPTIONS "CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store")
+set(CCACHE_OPTIONS "CCACHE_CPP2=true")
+set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/.cpm_cache")
 
 CPMAddPackage(
 	NAME Ccache.cmake
@@ -18,6 +19,8 @@ CPMAddPackage(
 set(PROJECT_NAME utils)
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 project(${PROJECT_NAME})
+
+include(./scripts/dependencies.cmake)
 
 # Collect sources and headers
 set(SRC_DIRS ${PROJECT_DIR}/src)
@@ -38,15 +41,20 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIRECTORY})
 set(EXPORT_INC_DIRS ${PROJECT_DIR}/inc/common ${PROJECT_DIR}/inc)
 
 if (LOGS_ENABLED)
-message(STATUS "Project ${PROJECT_NAME} INC_DIRS: ${INC_DIRS}")
-message(STATUS "Project ${PROJECT_NAME} EXPORT_INC_DIRS: ${EXPORT_INC_DIRS}")
+	message(STATUS "Project ${PROJECT_NAME} INC_DIRS: ${INC_DIRS}")
+	message(STATUS "Project ${PROJECT_NAME} EXPORT_INC_DIRS: ${EXPORT_INC_DIRS}")
 endif()
 
-# list(REMOVE_ITEM INC_DIRS ${EXPORT_INC_DIRS})
+proccess_deps(LIBRARIES LIBRARIES_INCLUDES)
+
+if (LOGS_ENABLED)
+	message(STATUS "Project ${PROJECT_NAME} LIBRARIES: ${LIBRARIES}")
+	message(STATUS "Project ${PROJECT_NAME} LIBRARIES_INCLUDES: ${LIBRARIES_INCLUDES}")
+endif()
 
 # Add library
 add_library(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCES} ${PROJECT_HEADERS})
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+target_link_libraries(${PROJECT_NAME} INTERFACE ${LIBRARIES})
 target_include_directories(${PROJECT_NAME} INTERFACE ${EXPORT_INC_DIRS})
 
 if (LOGS_ENABLED)

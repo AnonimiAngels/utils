@@ -41,7 +41,8 @@
 // Standard includes
 #include <memory>
 #include <string>
-#include <string_view>
+
+#include "std_impl.hpp"
 
 #define UNIQUE_PTR_LOGGER std::unique_ptr<utils::logger>
 #define MAKE_UNIQUE_LOGGER std::make_unique<utils::logger>
@@ -103,7 +104,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the trace level
 		 */
-		template <typename... in_args_t> auto trace([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto trace(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if defined(F_TRACE)
 			m_level							  = spdlog::level::trace;
@@ -120,7 +121,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the debug level
 		 */
-		template <typename... in_args_t> auto debug([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto debug(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if not defined(NDEBUG)
 
@@ -138,7 +139,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the info level
 		 */
-		template <typename... in_args_t> auto info([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto info(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if defined(F_INFO)
 
@@ -156,7 +157,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the warning level
 		 */
-		template <typename... in_args_t> auto warn([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto warn(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if defined(F_WARNING)
 			m_level							  = spdlog::level::warn;
@@ -173,7 +174,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the error level
 		 */
-		template <typename... in_args_t> auto error([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto error(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if defined(F_ERROR)
 
@@ -191,7 +192,7 @@ namespace utils
 		/**
 		 * @brief Function to log a message at the critical level
 		 */
-		template <typename... in_args_t> auto critical([[maybe_unused]] fmt::format_string<in_args_t...> fmt, [[maybe_unused]] in_args_t&&... args) -> void
+		template <typename... in_args_t> auto critical(MACRO_MAYBE_UNUSED fmt::format_string<in_args_t...> fmt, MACRO_MAYBE_UNUSED in_args_t&&... args) -> void
 		{
 #if defined(F_CRITICAL)
 
