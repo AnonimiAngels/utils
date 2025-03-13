@@ -13,7 +13,7 @@ function(proccess_deps OUT_LIBS OUT_INCS)
 		GITHUB_REPOSITORY gabime/spdlog
 		GIT_TAG v1.15.1
 	)
-	list(APPEND L_LIBS spdlog)
+	list(APPEND L_LIBS spdlog::spdlog_header_only)
 
 	CPMAddPackage(
 		NAME fmt
