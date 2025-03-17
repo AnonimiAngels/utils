@@ -45,7 +45,7 @@ if (LOGS_ENABLED)
 	message(STATUS "Project ${PROJECT_NAME} EXPORT_INC_DIRS: ${EXPORT_INC_DIRS}")
 endif()
 
-proccess_deps(LIBRARIES LIBRARIES_INCLUDES)
+process_deps(LIBRARIES LIBRARIES_INCLUDES)
 
 if (LOGS_ENABLED)
 	message(STATUS "Project ${PROJECT_NAME} LIBRARIES: ${LIBRARIES}")
@@ -53,9 +53,10 @@ if (LOGS_ENABLED)
 endif()
 
 # Add library
-add_library(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCES} ${PROJECT_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 target_link_libraries(${PROJECT_NAME} INTERFACE ${LIBRARIES})
 target_include_directories(${PROJECT_NAME} INTERFACE ${EXPORT_INC_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIRS})
 
 if (LOGS_ENABLED)
 	message(STATUS "Project sources: ${PROJECT_SOURCES}")

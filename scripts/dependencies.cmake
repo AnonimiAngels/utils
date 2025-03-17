@@ -3,7 +3,7 @@ set(LIBRARIES_BIN_DIR ${CMAKE_BINARY_DIR}/libraries)
 
 message(STATUS "Libraries directory: ${LIBRARIES_DIR}")
 
-function(proccess_deps OUT_LIBS OUT_INCS)
+function(process_deps OUT_LIBS OUT_INCS)
 	# Initialize variables in the parent scope
 	SET(L_LIBS "" PARENT_SCOPE)
 	SET(L_INCS "" PARENT_SCOPE)
