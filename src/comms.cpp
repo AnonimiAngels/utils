@@ -302,12 +302,14 @@ namespace utils
 	{
 		open_ssh_channel();
 
-		m_logger->trace("Executing command: {}", cmd);
+		m_logger->debug("Executing command: {}", cmd);
 		while_eagain([&]() { return libssh2_channel_exec(m_ssh_channel, cmd.c_str()); });
 
 		m_buffer.clear();
-		ssize_t nread;
-		std::array<char, 0x4000> buffer;
+		m_err_buffer.clear();
+
+		ssize_t nread = 0;
+		std::array<char, 0x4000> buffer{};
 
 		while (true)
 		{
@@ -317,8 +319,22 @@ namespace utils
 			else { break; }
 		}
 
+		buffer = decltype(buffer){};
+
+		// Read error buff
+		while (true)
+		{
+			nread = while_eagain([&]() { return libssh2_channel_read_stderr(m_ssh_channel, buffer.data(), buffer.size()); });
+
+			if (nread > 0) { m_err_buffer.append(buffer.data(), static_cast<std::size_t>(nread)); }
+			else { break; }
+		}
+
 		// If ending with \n remove it
 		if (!m_buffer.empty() && m_buffer.back() == '\n') { m_buffer.pop_back(); }
+		if (!m_err_buffer.empty() && m_err_buffer.back() == '\n') { m_err_buffer.pop_back(); }
+
+		m_logger->debug("Command rc: {}, buff: {}, err_buff: {}", m_return_code, m_buffer, m_err_buffer);
 
 		close_ssh_channel();
 	}
@@ -334,7 +350,7 @@ namespace utils
 
 		open_sftp_session();
 
-		m_sftp_file_info = {0, 0, 0, 0, 0, 0, 0};
+		m_sftp_file_info = {.flags = 0, .filesize = 0, .uid = 0, .gid = 0, .permissions = 0, .atime = 0, .mtime = 0};
 		while_eagain([&]() { return libssh2_sftp_stat(m_sftp_session, path_remote.c_str(), &m_sftp_file_info); });
 
 		if (m_ssh_rc != 0) { parse_error_code(); }

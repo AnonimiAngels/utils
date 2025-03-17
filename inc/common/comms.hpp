@@ -166,6 +166,13 @@ namespace utils
 		[[nodiscard]] auto get_output() const -> std::string { return m_buffer; }
 
 		/**
+		 * @brief Get the output object
+		 *
+		 * @return std::string
+		 */
+		[[nodiscard]] auto get_err_output() const -> std::string { return m_err_buffer; }
+
+		/**
 		 * @brief Get the return code object
 		 *
 		 * @return int32_t
@@ -346,6 +353,12 @@ namespace utils
 		 *
 		 */
 		std::string m_buffer;
+
+		/**
+		 * @brief Buffer for SSH output
+		 *
+		 */
+		std::string m_err_buffer;
 
 		/**
 		 * @brief SSH host address
