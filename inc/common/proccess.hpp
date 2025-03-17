@@ -58,7 +58,7 @@ class proccess
 	~proccess() { wait(); }
 
 	[[nodiscard]] auto get_output() -> const std::string& { return m_buffer; }
-	[[nodiscard]] auto get_return_code() const -> int32_t { return m_return_code; }
+	[[nodiscard]] auto get_rc() const -> int32_t { return m_return_code; }
 
 	auto execute(const std::string_view in_cmd, bool is_async = false) -> void { is_async ? execute_cmd_async(in_cmd) : execute_cmd(in_cmd); }
 
