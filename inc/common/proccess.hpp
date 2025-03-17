@@ -36,7 +36,7 @@
 #include <vector>
 #include <future>
 
-class process
+class proccess
 {
   private:
 	FILE* m_pipe = nullptr;
@@ -49,13 +49,13 @@ class process
 	std::future<void> m_future;
 
   public:
-	process() = default;
-	process(const std::string_view in_cmd, size_t in_read_buffer_size = static_cast<size_t>(64 * 1024), bool is_async = false) : m_buffer_size(in_read_buffer_size)
+	proccess() = default;
+	proccess(const std::string_view in_cmd, size_t in_read_buffer_size = static_cast<size_t>(64 * 1024), bool is_async = false) : m_buffer_size(in_read_buffer_size)
 	{
 		execute(in_cmd, is_async);
 	}
 
-	~process() { wait(); }
+	~proccess() { wait(); }
 
 	[[nodiscard]] auto get_output() -> const std::string& { return m_buffer; }
 	[[nodiscard]] auto get_return_code() const -> int32_t { return m_return_code; }
