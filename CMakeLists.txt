@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.29)
 include(./scripts/CPM.cmake)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 set(LOGS_ENABLED OFF)
 set(USE_CCACHE ON)
