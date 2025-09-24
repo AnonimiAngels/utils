@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+readonly BUILD_DIR="build"
+
+# rm -rf "${BUILD_DIR}" || true
+# mkdir -p "${BUILD_DIR}"
+
+cmake -S . -B "${BUILD_DIR}" -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build "${BUILD_DIR}" --config Release --target all --parallel
+
+readonly TEST_DIR="${BUILD_DIR}/test"
+
+readonly TESTS=(
+	"tests_cxx11"
+	"tests_cxx14"
+	"tests_cxx17"
+	"tests_cxx20"
+	"tests_cxx23"
+	"tests_cxx26"
+)
+
+for test in "${TESTS[@]}"; do
+	"${TEST_DIR}/${test}/${test}"
+done

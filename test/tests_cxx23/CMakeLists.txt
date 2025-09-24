@@ -1,0 +1,16 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.30...3.31)
+
+# Get current directory name
+get_filename_component(CURRENT_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+PROJECT(${CURRENT_DIR_NAME} VERSION 1.0.0 LANGUAGES CXX)
+
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "src/*.c*")
+file(GLOB_RECURSE PROJECT_HEADERS "inc/*.h*")
+
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+target_include_directories(${PROJECT_NAME} PUBLIC inc)
+target_link_libraries(${PROJECT_NAME} PUBLIC test_common)
+target_link_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:GNU,Clang>:-Wl,--gc-sections> $<$<CXX_COMPILER_ID:MSVC>:/OPT:REF>)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
