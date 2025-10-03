@@ -88,4 +88,50 @@ template <typename duration_t> inline auto time_to_string(utils::precision_timer
 	return std::format("{}", std::join(parts, " "));
 }
 
+inline auto ms_to_string(std::uint32_t p_ms) -> std::string
+{
+	constexpr std::uint32_t ms_per_sec	= 1000;
+	constexpr std::uint32_t sec_per_min = 60;
+	constexpr std::uint32_t min_per_hr	= 60;
+	constexpr std::uint32_t hr_per_day	= 24;
+
+	const std::uint32_t days	= p_ms / (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
+	std::uint32_t remainder		= p_ms % (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
+
+	const std::uint32_t hours	= remainder / (ms_per_sec * sec_per_min * min_per_hr);
+	remainder					= remainder % (ms_per_sec * sec_per_min * min_per_hr);
+
+	const std::uint32_t minutes = remainder / (ms_per_sec * sec_per_min);
+	remainder					= remainder % (ms_per_sec * sec_per_min);
+
+	const std::uint32_t seconds = remainder / ms_per_sec;
+	const std::uint32_t ms		= remainder % ms_per_sec;
+
+	std::vector<std::string> parts;
+	parts.reserve(5);
+
+	if (days > 0)
+	{
+		parts.emplace_back(std::format("{}d", days));
+	}
+	if (hours > 0)
+	{
+		parts.emplace_back(std::format("{}h", hours));
+	}
+	if (minutes > 0)
+	{
+		parts.emplace_back(std::format("{}min", minutes));
+	}
+	if (seconds > 0)
+	{
+		parts.emplace_back(std::format("{:03d}s", seconds));
+	}
+	if (ms > 0 || parts.empty())
+	{
+		parts.emplace_back(std::format("{:03d}ms", ms));
+	}
+
+	return std::format("{}", std::join(parts, " "));
+}
+
 #endif	  // UTILS_MANIP

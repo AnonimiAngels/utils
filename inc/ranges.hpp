@@ -21,7 +21,8 @@ namespace ranges
 	{
 	};
 
-	template <typename type_t> struct is_range<type_t, decltype(std::begin(std::declval<type_t&>()), std::end(std::declval<type_t&>()), void())> : std::true_type
+	template <typename type_t>
+	struct is_range<type_t, decltype(std::begin(std::declval<type_t&>()), std::end(std::declval<type_t&>()), void())> : std::true_type
 	{
 	};
 
@@ -140,7 +141,9 @@ namespace ranges
 	};
 
 	template <typename iter_t>
-	struct is_input_iterator<iter_t, typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category, std::input_iterator_tag>::value>::type>
+	struct is_input_iterator<
+		iter_t,
+		typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category, std::input_iterator_tag>::value>::type>
 		: std::true_type
 	{
 	};
@@ -150,8 +153,9 @@ namespace ranges
 	};
 
 	template <typename iter_t>
-	struct is_forward_iterator<iter_t, typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category, std::forward_iterator_tag>::value>::type>
-		: std::true_type
+	struct is_forward_iterator<iter_t,
+							   typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category,
+																		   std::forward_iterator_tag>::value>::type> : std::true_type
 	{
 	};
 
@@ -161,8 +165,8 @@ namespace ranges
 
 	template <typename iter_t>
 	struct is_bidirectional_iterator<iter_t,
-									 typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category, std::bidirectional_iterator_tag>::value>::type>
-		: std::true_type
+									 typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category,
+																				 std::bidirectional_iterator_tag>::value>::type> : std::true_type
 	{
 	};
 
@@ -172,24 +176,30 @@ namespace ranges
 
 	template <typename iter_t>
 	struct is_random_access_iterator<iter_t,
-									 typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category, std::random_access_iterator_tag>::value>::type>
-		: std::true_type
+									 typename std::enable_if<std::is_convertible<typename std::iterator_traits<iter_t>::iterator_category,
+																				 std::random_access_iterator_tag>::value>::type> : std::true_type
 	{
 	};
 
-	template <typename type_t> struct is_input_range : std::integral_constant<bool, is_range<type_t>::value && is_input_iterator<range_iterator_t<type_t>>::value>
+	template <typename type_t>
+	struct is_input_range : std::integral_constant<bool, is_range<type_t>::value && is_input_iterator<range_iterator_t<type_t>>::value>
 	{
 	};
 
-	template <typename type_t> struct is_forward_range : std::integral_constant<bool, is_range<type_t>::value && is_forward_iterator<range_iterator_t<type_t>>::value>
+	template <typename type_t>
+	struct is_forward_range : std::integral_constant<bool, is_range<type_t>::value && is_forward_iterator<range_iterator_t<type_t>>::value>
 	{
 	};
 
-	template <typename type_t> struct is_bidirectional_range : std::integral_constant<bool, is_range<type_t>::value && is_bidirectional_iterator<range_iterator_t<type_t>>::value>
+	template <typename type_t>
+	struct is_bidirectional_range
+		: std::integral_constant<bool, is_range<type_t>::value && is_bidirectional_iterator<range_iterator_t<type_t>>::value>
 	{
 	};
 
-	template <typename type_t> struct is_random_access_range : std::integral_constant<bool, is_range<type_t>::value && is_random_access_iterator<range_iterator_t<type_t>>::value>
+	template <typename type_t>
+	struct is_random_access_range
+		: std::integral_constant<bool, is_range<type_t>::value && is_random_access_iterator<range_iterator_t<type_t>>::value>
 	{
 	};
 
@@ -222,13 +232,25 @@ namespace ranges
 
 		inline explicit reverse_view(base_range_t p_base) : m_base(std::move(p_base)) {}
 
-		inline auto begin() -> std::reverse_iterator<range_iterator_t<base_range_t>> { return std::reverse_iterator<range_iterator_t<base_range_t>>(std::end(m_base)); }
+		inline auto begin() -> std::reverse_iterator<range_iterator_t<base_range_t>>
+		{
+			return std::reverse_iterator<range_iterator_t<base_range_t>>(std::end(m_base));
+		}
 
-		inline auto end() -> std::reverse_iterator<range_iterator_t<base_range_t>> { return std::reverse_iterator<range_iterator_t<base_range_t>>(std::begin(m_base)); }
+		inline auto end() -> std::reverse_iterator<range_iterator_t<base_range_t>>
+		{
+			return std::reverse_iterator<range_iterator_t<base_range_t>>(std::begin(m_base));
+		}
 
-		inline auto begin() const -> std::reverse_iterator<range_iterator_t<const base_range_t>> { return std::reverse_iterator<range_iterator_t<const base_range_t>>(std::end(m_base)); }
+		inline auto begin() const -> std::reverse_iterator<range_iterator_t<const base_range_t>>
+		{
+			return std::reverse_iterator<range_iterator_t<const base_range_t>>(std::end(m_base));
+		}
 
-		inline auto end() const -> std::reverse_iterator<range_iterator_t<const base_range_t>> { return std::reverse_iterator<range_iterator_t<const base_range_t>>(std::begin(m_base)); }
+		inline auto end() const -> std::reverse_iterator<range_iterator_t<const base_range_t>>
+		{
+			return std::reverse_iterator<range_iterator_t<const base_range_t>>(std::begin(m_base));
+		}
 
 		inline auto base() const -> const base_range_t& { return m_base; }
 	};
@@ -272,7 +294,9 @@ namespace ranges
 		template <typename... args_t> constexpr dangling(args_t&&...) {}
 	};
 
-	template <typename range_t> using borrowed_iterator_t = typename std::conditional<is_borrowed_range<remove_cvref_t<range_t>>::value, range_iterator_t<range_t>, dangling>::type;
+	template <typename range_t>
+	using borrowed_iterator_t =
+		typename std::conditional<is_borrowed_range<remove_cvref_t<range_t>>::value, range_iterator_t<range_t>, dangling>::type;
 
 	template <typename type_t> struct is_array : std::false_type
 	{
@@ -282,11 +306,14 @@ namespace ranges
 	{
 	};
 
-	template <typename type_t> struct is_movable : std::integral_constant<bool, std::is_move_constructible<type_t>::value && std::is_move_assignable<type_t>::value>
+	template <typename type_t>
+	struct is_movable : std::integral_constant<bool, std::is_move_constructible<type_t>::value && std::is_move_assignable<type_t>::value>
 	{
 	};
 
-	template <typename range_t> using borrowed_subrange_t = typename std::conditional<is_borrowed_range<remove_cvref_t<range_t>>::value, subrange<range_iterator_t<range_t>>, dangling>::type;
+	template <typename range_t>
+	using borrowed_subrange_t =
+		typename std::conditional<is_borrowed_range<remove_cvref_t<range_t>>::value, subrange<range_iterator_t<range_t>>, dangling>::type;
 
 	template <typename range_t> inline auto all(range_t& p_r) -> ref_view<range_t>
 	{
@@ -429,7 +456,10 @@ namespace ranges
 		using const_iterator = typename container_t::const_iterator;
 		sorted_view()		 = default;
 
-		template <typename range_t> explicit sorted_view(range_t&& p_range) : m_container(std::begin(p_range), std::end(p_range)) { std::sort(m_container.begin(), m_container.end()); }
+		template <typename range_t> explicit sorted_view(range_t&& p_range) : m_container(std::begin(p_range), std::end(p_range))
+		{
+			std::sort(m_container.begin(), m_container.end());
+		}
 
 		sorted_view(sorted_view&& p_other)			  = default;
 		sorted_view& operator=(sorted_view&& p_other) = default;
@@ -511,12 +541,16 @@ namespace ranges
 
 		inline auto begin() const -> filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>
 		{
-			return filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>(std::begin(m_base), std::end(m_base), m_pred);
+			return filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>(std::begin(m_base),
+																											 std::end(m_base),
+																											 m_pred);
 		}
 
 		inline auto end() const -> filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>
 		{
-			return filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>(std::end(m_base), std::end(m_base), m_pred);
+			return filter_iterator<range_iterator_t<const range_t>, range_iterator_t<const range_t>, pred_t>(std::end(m_base),
+																											 std::end(m_base),
+																											 m_pred);
 		}
 	};
 
@@ -669,7 +703,10 @@ namespace ranges
 			return iterator(last, static_cast<std::size_t>(dist));
 		}
 
-		inline auto begin() const -> enumerate_iterator<range_iterator_t<const range_t>> { return enumerate_iterator<range_iterator_t<const range_t>>(std::begin(m_base), 0); }
+		inline auto begin() const -> enumerate_iterator<range_iterator_t<const range_t>>
+		{
+			return enumerate_iterator<range_iterator_t<const range_t>>(std::begin(m_base), 0);
+		}
 
 		inline auto end() const -> enumerate_iterator<range_iterator_t<const range_t>>
 		{
@@ -815,7 +852,9 @@ namespace ranges
 
 			take_iterator() : m_count(0), m_pos(0) {}
 
-			inline take_iterator(iter_t p_current, std::size_t p_count, std::size_t p_pos = 0) : m_current(p_current), m_count(p_count), m_pos(p_pos) {}
+			inline take_iterator(iter_t p_current, std::size_t p_count, std::size_t p_pos = 0) : m_current(p_current), m_count(p_count), m_pos(p_pos)
+			{
+			}
 
 			inline auto operator*() const -> reference { return *m_current; }
 
@@ -862,7 +901,10 @@ namespace ranges
 			return iterator(it, m_count, idx_for);
 		}
 
-		inline auto begin() const -> take_iterator<range_iterator_t<const range_t>> { return take_iterator<range_iterator_t<const range_t>>(std::begin(m_base), m_count); }
+		inline auto begin() const -> take_iterator<range_iterator_t<const range_t>>
+		{
+			return take_iterator<range_iterator_t<const range_t>>(std::begin(m_base), m_count);
+		}
 
 		inline auto end() const -> take_iterator<range_iterator_t<const range_t>>
 		{
@@ -1135,7 +1177,8 @@ namespace ranges
 
 		take_while_iterator() : m_at_end(true) {}
 
-		inline take_while_iterator(iter_t p_current, sentinel_t p_end, pred_t p_pred) : m_current(p_current), m_end(p_end), m_pred(p_pred), m_at_end(false)
+		inline take_while_iterator(iter_t p_current, sentinel_t p_end, pred_t p_pred)
+			: m_current(p_current), m_end(p_end), m_pred(p_pred), m_at_end(false)
 		{
 			if (m_current != m_end)
 			{
@@ -1199,13 +1242,16 @@ namespace ranges
 
 		inline auto begin() const -> take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>
 		{
-			return take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>(std::begin(m_base), std::end(m_base), m_pred);
+			return take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>(
+				std::begin(m_base), std::end(m_base), m_pred);
 		}
 
 		inline auto end() const -> take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>
 		{
 			auto end_iter = std::end(m_base);
-			return take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>(end_iter, end_iter, m_pred);
+			return take_while_iterator<range_iterator_t<const range_t>, decltype(std::end(std::declval<const range_t&>())), pred_t>(end_iter,
+																																	end_iter,
+																																	m_pred);
 		}
 	};
 
@@ -1281,7 +1327,8 @@ namespace ranges
 
 		join_iterator() : m_at_end(true) {}
 
-		inline join_iterator(outer_iter_t p_outer_current, outer_iter_t p_outer_end) : m_outer_current(p_outer_current), m_outer_end(p_outer_end), m_at_end(false)
+		inline join_iterator(outer_iter_t p_outer_current, outer_iter_t p_outer_end)
+			: m_outer_current(p_outer_current), m_outer_end(p_outer_end), m_at_end(false)
 		{
 			if (m_outer_current == m_outer_end)
 			{
@@ -1348,7 +1395,10 @@ namespace ranges
 			return iterator(end_iter, end_iter);
 		}
 
-		inline auto begin() const -> join_iterator<const range_of_ranges_t> { return join_iterator<const range_of_ranges_t>(std::begin(m_base), std::end(m_base)); }
+		inline auto begin() const -> join_iterator<const range_of_ranges_t>
+		{
+			return join_iterator<const range_of_ranges_t>(std::begin(m_base), std::end(m_base));
+		}
 
 		inline auto end() const -> join_iterator<const range_of_ranges_t>
 		{
@@ -1357,8 +1407,7 @@ namespace ranges
 		}
 	};
 
-	template <typename range_t, typename delimiter_t>
-	class join_with_view
+	template <typename range_t, typename delimiter_t> class join_with_view
 	{
 		range_t m_base;
 		delimiter_t m_delimiter;
@@ -1368,11 +1417,10 @@ namespace ranges
 
 		inline join_with_view(range_t p_base, delimiter_t p_delimiter) : m_base(p_base), m_delimiter(p_delimiter) {}
 
-		template <typename string_t = std::string>
-		inline auto to() const -> string_t
+		template <typename string_t = std::string> inline auto to() const -> string_t
 		{
 			string_t result;
-			auto iter = std::begin(m_base);
+			auto iter	  = std::begin(m_base);
 			auto end_iter = std::end(m_base);
 
 			if (iter != end_iter)
@@ -1391,10 +1439,7 @@ namespace ranges
 			return result;
 		}
 
-		inline operator std::string() const
-		{
-			return to<std::string>();
-		}
+		inline operator std::string() const { return to<std::string>(); }
 	};
 
 	template <typename range_t, typename delimiter_t>
@@ -1413,7 +1458,8 @@ namespace ranges
 
 				inline explicit partial(pred_t p_pred) : m_pred(p_pred) {}
 
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> filter_view<decltype(all(std::forward<range_t>(p_range))), pred_t>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> filter_view<decltype(all(std::forward<range_t>(p_range))), pred_t>
 				{
 					return filter_view<decltype(all(std::forward<range_t>(p_range))), pred_t>(all(std::forward<range_t>(p_range)), m_pred);
 				}
@@ -1430,7 +1476,8 @@ namespace ranges
 
 				inline explicit partial(func_t p_func) : m_func(p_func) {}
 
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> transform_view<decltype(all(std::forward<range_t>(p_range))), func_t>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> transform_view<decltype(all(std::forward<range_t>(p_range))), func_t>
 				{
 					return transform_view<decltype(all(std::forward<range_t>(p_range))), func_t>(all(std::forward<range_t>(p_range)), m_func);
 				}
@@ -1447,7 +1494,8 @@ namespace ranges
 
 				inline explicit partial(std::size_t p_count) : m_count(p_count) {}
 
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> take_view<decltype(all(std::forward<range_t>(p_range)))>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> take_view<decltype(all(std::forward<range_t>(p_range)))>
 				{
 					return take_view<decltype(all(std::forward<range_t>(p_range)))>(all(std::forward<range_t>(p_range)), m_count);
 				}
@@ -1464,7 +1512,8 @@ namespace ranges
 
 				inline explicit partial(std::size_t p_count) : m_count(p_count) {}
 
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> drop_view<decltype(all(std::forward<range_t>(p_range)))>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> drop_view<decltype(all(std::forward<range_t>(p_range)))>
 				{
 					return drop_view<decltype(all(std::forward<range_t>(p_range)))>(all(std::forward<range_t>(p_range)), m_count);
 				}
@@ -1477,7 +1526,8 @@ namespace ranges
 		{
 			struct partial
 			{
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> enumerate_view<decltype(all(std::forward<range_t>(p_range)))>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> enumerate_view<decltype(all(std::forward<range_t>(p_range)))>
 				{
 					return enumerate_view<decltype(all(std::forward<range_t>(p_range)))>(all(std::forward<range_t>(p_range)));
 				}
@@ -1490,7 +1540,8 @@ namespace ranges
 		{
 			struct partial
 			{
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> join_view<decltype(all(std::forward<range_t>(p_range)))>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> join_view<decltype(all(std::forward<range_t>(p_range)))>
 				{
 					return join_view<decltype(all(std::forward<range_t>(p_range)))>(all(std::forward<range_t>(p_range)));
 				}
@@ -1503,7 +1554,8 @@ namespace ranges
 		{
 			struct partial
 			{
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> sorted_view<dynamic_array<range_value_t<remove_cvref_t<range_t>>>>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> sorted_view<dynamic_array<range_value_t<remove_cvref_t<range_t>>>>
 				{
 					return sorted_view<dynamic_array<range_value_t<remove_cvref_t<range_t>>>>(std::forward<range_t>(p_range));
 				}
@@ -1528,13 +1580,18 @@ namespace ranges
 
 				inline explicit partial(delimiter_t p_delimiter) : m_delimiter(p_delimiter) {}
 
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> join_with_view<decltype(all(std::forward<range_t>(p_range))), delimiter_t>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> join_with_view<decltype(all(std::forward<range_t>(p_range))), delimiter_t>
 				{
-					return join_with_view<decltype(all(std::forward<range_t>(p_range))), delimiter_t>(all(std::forward<range_t>(p_range)), m_delimiter);
+					return join_with_view<decltype(all(std::forward<range_t>(p_range))), delimiter_t>(all(std::forward<range_t>(p_range)),
+																									  m_delimiter);
 				}
 			};
 
-			template <typename delimiter_t> inline auto operator()(delimiter_t p_delimiter) const -> partial<delimiter_t> { return partial<delimiter_t>(p_delimiter); }
+			template <typename delimiter_t> inline auto operator()(delimiter_t p_delimiter) const -> partial<delimiter_t>
+			{
+				return partial<delimiter_t>(p_delimiter);
+			}
 		};
 
 		static const join_with_adaptor join_with{};
@@ -1543,18 +1600,24 @@ namespace ranges
 		{
 			struct partial
 			{
-				template <typename range_t> inline auto operator()(range_t&& p_range) const -> unique_view<decltype(all(std::forward<range_t>(p_range)))>
+				template <typename range_t>
+				inline auto operator()(range_t&& p_range) const -> unique_view<decltype(all(std::forward<range_t>(p_range)))>
 				{
 					return unique_view<decltype(all(std::forward<range_t>(p_range)))>(all(std::forward<range_t>(p_range)));
 				}
 			};
 
-			inline auto operator()() const -> partial { return partial{}; }
+			auto operator()() const -> partial { return partial{}; }
 		};
 
 		template <typename container_t> struct to_partial
 		{
-			template <typename range_t> inline auto operator()(range_t&& p_range) const -> container_t { return container_t(std::begin(p_range), std::end(p_range)); }
+			template <typename range_t> auto operator()(const range_t& p_range) const -> container_t
+			{
+				container_t result;
+				result.insert(std::end(result), std::begin(p_range), std::end(p_range));
+				return result;
+			}
 		};
 
 		template <typename container_t> inline auto to() -> to_partial<container_t>
@@ -1656,12 +1719,14 @@ namespace ranges
 		return p_func;
 	}
 
-	template <typename range_t, typename func_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto for_each(range_t&& p_range, func_t p_func) -> func_t
+	template <typename range_t, typename func_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto for_each(range_t&& p_range, func_t p_func) -> func_t
 	{
 		return ranges::for_each(std::begin(p_range), std::end(p_range), p_func);
 	}
 
-	template <typename input_iter, typename output_iter, typename func_t> inline auto transform(input_iter p_first, input_iter p_last, output_iter p_result, func_t p_func) -> output_iter
+	template <typename input_iter, typename output_iter, typename func_t>
+	inline auto transform(input_iter p_first, input_iter p_last, output_iter p_result, func_t p_func) -> output_iter
 	{
 		for (; p_first != p_last; ++p_first, ++p_result)
 			*p_result = p_func(*p_first);
@@ -1725,7 +1790,8 @@ namespace ranges
 		return true;
 	}
 
-	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto all_of(range_t&& p_range, pred_t p_pred) -> bool
+	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto all_of(range_t&& p_range, pred_t p_pred) -> bool
 	{
 		return ranges::all_of(std::begin(p_range), std::end(p_range), p_pred);
 	}
@@ -1743,7 +1809,8 @@ namespace ranges
 		return false;
 	}
 
-	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto any_of(range_t&& p_range, pred_t p_pred) -> bool
+	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto any_of(range_t&& p_range, pred_t p_pred) -> bool
 	{
 		return ranges::any_of(std::begin(p_range), std::end(p_range), p_pred);
 	}
@@ -1761,17 +1828,20 @@ namespace ranges
 		return true;
 	}
 
-	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto none_of(range_t&& p_range, pred_t p_pred) -> bool
+	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto none_of(range_t&& p_range, pred_t p_pred) -> bool
 	{
 		return ranges::none_of(std::begin(p_range), std::end(p_range), p_pred);
 	}
 
-	template <typename input_iter> inline auto count(input_iter p_first, input_iter p_last) -> typename std::iterator_traits<input_iter>::difference_type
+	template <typename input_iter>
+	inline auto count(input_iter p_first, input_iter p_last) -> typename std::iterator_traits<input_iter>::difference_type
 	{
 		return std::distance(p_first, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto count(range_t&& p_range) -> range_difference_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto count(range_t&& p_range) -> range_difference_t<range_t>
 	{
 		return ranges::count(std::begin(p_range), std::end(p_range));
 	}
@@ -1797,7 +1867,8 @@ namespace ranges
 		return ranges::count_val(std::begin(p_range), std::end(p_range), p_value);
 	}
 
-	template <typename input_iter, typename pred_t> inline auto count_if(input_iter p_first, input_iter p_last, pred_t p_pred) -> typename std::iterator_traits<input_iter>::difference_type
+	template <typename input_iter, typename pred_t>
+	inline auto count_if(input_iter p_first, input_iter p_last, pred_t p_pred) -> typename std::iterator_traits<input_iter>::difference_type
 	{
 		typename std::iterator_traits<input_iter>::difference_type ret = 0;
 		while (p_first != p_last)
@@ -1833,7 +1904,8 @@ namespace ranges
 		return ranges::copy(std::begin(p_range), std::end(p_range), p_result);
 	}
 
-	template <typename input_iter, typename output_iter, typename pred_t> inline auto copy_if(input_iter p_first, input_iter p_last, output_iter p_result, pred_t p_pred) -> output_iter
+	template <typename input_iter, typename output_iter, typename pred_t>
+	inline auto copy_if(input_iter p_first, input_iter p_last, output_iter p_result, pred_t p_pred) -> output_iter
 	{
 		while (p_first != p_last)
 		{
@@ -1861,7 +1933,8 @@ namespace ranges
 		}
 	}
 
-	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto fill(range_t&& p_range, const type_t& p_value) -> void
+	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto fill(range_t&& p_range, const type_t& p_value) -> void
 	{
 		ranges::fill(std::begin(p_range), std::end(p_range), p_value);
 	}
@@ -1875,7 +1948,8 @@ namespace ranges
 		}
 	}
 
-	template <typename range_t, typename generator_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto generate(range_t&& p_range, generator_t p_gen) -> void
+	template <typename range_t, typename generator_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto generate(range_t&& p_range, generator_t p_gen) -> void
 	{
 		ranges::generate(std::begin(p_range), std::end(p_range), p_gen);
 	}
@@ -1904,9 +1978,12 @@ namespace ranges
 		return ranges::remove_if(std::begin(p_range), std::end(p_range), p_pred);
 	}
 
-	template <typename forward_iter, typename type_t> inline auto remove(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
+	template <typename forward_iter, typename type_t>
+	inline auto remove(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
 	{
-		return ranges::remove_if(p_first, p_last, [&p_value](const typename std::iterator_traits<forward_iter>::reference p_ref) { return p_ref == p_value; });
+		return ranges::remove_if(p_first,
+								 p_last,
+								 [&p_value](const typename std::iterator_traits<forward_iter>::reference p_ref) { return p_ref == p_value; });
 	}
 
 	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
@@ -1943,7 +2020,8 @@ namespace ranges
 		std::sort(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto sort(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto sort(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::sort(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -1965,12 +2043,14 @@ namespace ranges
 		return smallest;
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto min_element(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto min_element(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::min_element(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename compare_t> inline auto min_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
+	template <typename forward_iter, typename compare_t>
+	inline auto min_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
 	{
 		if (p_first == p_last)
 			return p_last;
@@ -2006,12 +2086,14 @@ namespace ranges
 		return largest;
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto max_element(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto max_element(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::max_element(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename compare_t> inline auto max_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
+	template <typename forward_iter, typename compare_t>
+	inline auto max_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
 	{
 		if (p_first == p_last)
 			return p_last;
@@ -2067,13 +2149,17 @@ namespace ranges
 		return true;
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto equal(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> bool
 	{
 		return ranges::equal(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), p_pred);
 	}
 
-	template <typename input_iter, typename type_t, typename binary_op_t> inline auto accumulate(input_iter p_first, input_iter p_last, type_t p_init, binary_op_t p_op) -> type_t
+	template <typename input_iter, typename type_t, typename binary_op_t>
+	inline auto accumulate(input_iter p_first, input_iter p_last, type_t p_init, binary_op_t p_op) -> type_t
 	{
 		while (p_first != p_last)
 		{
@@ -2088,7 +2174,8 @@ namespace ranges
 		return ranges::accumulate(p_first, p_last, p_init, std::plus<type_t>());
 	}
 
-	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto accumulate(range_t&& p_range, type_t p_init) -> type_t
+	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto accumulate(range_t&& p_range, type_t p_init) -> type_t
 	{
 		return ranges::accumulate(std::begin(p_range), std::end(p_range), p_init);
 	}
@@ -2099,7 +2186,8 @@ namespace ranges
 		return ranges::accumulate(std::begin(p_range), std::end(p_range), p_init, p_op);
 	}
 
-	template <typename input_iter, typename size_t, typename func_t> inline auto for_each_n(input_iter p_first, size_t p_n, func_t p_func) -> in_fun_result<input_iter, func_t>
+	template <typename input_iter, typename size_t, typename func_t>
+	inline auto for_each_n(input_iter p_first, size_t p_n, func_t p_func) -> in_fun_result<input_iter, func_t>
 	{
 		if (p_n == 0)
 		{
@@ -2134,12 +2222,14 @@ namespace ranges
 		return p_last;
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto adjacent_find(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto adjacent_find(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::adjacent_find(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename binary_pred_t> inline auto adjacent_find(forward_iter p_first, forward_iter p_last, binary_pred_t p_pred) -> forward_iter
+	template <typename forward_iter, typename binary_pred_t>
+	inline auto adjacent_find(forward_iter p_first, forward_iter p_last, binary_pred_t p_pred) -> forward_iter
 	{
 		if (p_first == p_last)
 			return p_last;
@@ -2161,7 +2251,8 @@ namespace ranges
 		return ranges::adjacent_find(std::begin(p_range), std::end(p_range), p_pred);
 	}
 
-	template <typename input_iter1, typename input_iter2> inline auto mismatch(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2) -> in_in_result<input_iter1, input_iter2>
+	template <typename input_iter1, typename input_iter2>
+	inline auto mismatch(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2) -> in_in_result<input_iter1, input_iter2>
 	{
 		for (; p_first1 != p_last1 && !(*p_first1 == *p_first2); ++p_first1, ++p_first2)
 			;
@@ -2175,20 +2266,26 @@ namespace ranges
 	}
 
 	template <typename input_iter1, typename input_iter2, typename binary_pred_t>
-	inline auto mismatch(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, binary_pred_t p_pred) -> in_in_result<input_iter1, input_iter2>
+	inline auto mismatch(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, binary_pred_t p_pred)
+		-> in_in_result<input_iter1, input_iter2>
 	{
 		for (; p_first1 != p_last1 && p_pred(*p_first1, *p_first2); ++p_first1, ++p_first2)
 			;
 		return {p_first1, p_first2};
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
-	inline auto mismatch(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> in_in_result<range_iterator_t<range1_t>, range_iterator_t<range2_t>>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	inline auto mismatch(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred)
+		-> in_in_result<range_iterator_t<range1_t>, range_iterator_t<range2_t>>
 	{
 		return ranges::mismatch(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), p_pred);
 	}
 
-	template <typename input_iter1, typename input_iter2> inline auto lexicographical_compare(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
+	template <typename input_iter1, typename input_iter2>
+	inline auto lexicographical_compare(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
 	{
 		while (p_first1 != p_last1 && p_first2 != p_last2)
 		{
@@ -2209,7 +2306,8 @@ namespace ranges
 	}
 
 	template <typename input_iter1, typename input_iter2, typename compare_t>
-	inline auto lexicographical_compare(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, compare_t p_comp) -> bool
+	inline auto lexicographical_compare(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, compare_t p_comp)
+		-> bool
 	{
 		while (p_first1 != p_last1 && p_first2 != p_last2)
 		{
@@ -2223,7 +2321,10 @@ namespace ranges
 		return p_first1 == p_last1 && p_first2 != p_last2;
 	}
 
-	template <typename range1_t, typename range2_t, typename compare_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename compare_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto lexicographical_compare(range1_t&& p_range1, range2_t&& p_range2, compare_t p_comp) -> bool
 	{
 		return ranges::lexicographical_compare(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_comp);
@@ -2272,7 +2373,8 @@ namespace ranges
 	}
 
 	template <typename forward_iter1, typename forward_iter2, typename binary_pred_t>
-	inline auto find_end(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2, forward_iter2 p_last2, binary_pred_t p_pred) -> forward_iter1
+	inline auto find_end(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2, forward_iter2 p_last2, binary_pred_t p_pred)
+		-> forward_iter1
 	{
 		if (p_first2 == p_last2)
 			return p_last1;
@@ -2288,13 +2390,17 @@ namespace ranges
 		return result;
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto find_end(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> range_iterator_t<range1_t>
 	{
 		return ranges::find_end(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_pred);
 	}
 
-	template <typename input_iter, typename forward_iter> inline auto find_first_of(input_iter p_first1, input_iter p_last1, forward_iter p_first2, forward_iter p_last2) -> input_iter
+	template <typename input_iter, typename forward_iter>
+	inline auto find_first_of(input_iter p_first1, input_iter p_last1, forward_iter p_first2, forward_iter p_last2) -> input_iter
 	{
 		for (; p_first1 != p_last1; ++p_first1)
 			for (forward_iter it = p_first2; it != p_last2; ++it)
@@ -2310,7 +2416,8 @@ namespace ranges
 	}
 
 	template <typename input_iter, typename forward_iter, typename binary_pred_t>
-	inline auto find_first_of(input_iter p_first1, input_iter p_last1, forward_iter p_first2, forward_iter p_last2, binary_pred_t p_pred) -> input_iter
+	inline auto find_first_of(input_iter p_first1, input_iter p_last1, forward_iter p_first2, forward_iter p_last2, binary_pred_t p_pred)
+		-> input_iter
 	{
 		for (; p_first1 != p_last1; ++p_first1)
 			for (forward_iter it = p_first2; it != p_last2; ++it)
@@ -2319,7 +2426,10 @@ namespace ranges
 		return p_last1;
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto find_first_of(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> range_iterator_t<range1_t>
 	{
 		return ranges::find_first_of(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_pred);
@@ -2338,18 +2448,23 @@ namespace ranges
 	}
 
 	template <typename forward_iter1, typename forward_iter2, typename binary_pred_t>
-	inline auto search(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2, forward_iter2 p_last2, binary_pred_t p_pred) -> forward_iter1
+	inline auto search(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2, forward_iter2 p_last2, binary_pred_t p_pred)
+		-> forward_iter1
 	{
 		return std::search(p_first1, p_last1, p_first2, p_last2, p_pred);
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto search(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> range_iterator_t<range1_t>
 	{
 		return ranges::search(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_pred);
 	}
 
-	template <typename forward_iter, typename size_t, typename type_t> inline auto search_n(forward_iter p_first, forward_iter p_last, size_t p_count, const type_t& p_value) -> forward_iter
+	template <typename forward_iter, typename size_t, typename type_t>
+	inline auto search_n(forward_iter p_first, forward_iter p_last, size_t p_count, const type_t& p_value) -> forward_iter
 	{
 		return std::search_n(p_first, p_last, p_count, p_value);
 	}
@@ -2366,7 +2481,11 @@ namespace ranges
 		return std::search_n(p_first, p_last, p_count, p_value, p_pred);
 	}
 
-	template <typename range_t, typename size_t, typename type_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	template <typename range_t,
+			  typename size_t,
+			  typename type_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range_t>::value>::type>
 	inline auto search_n(range_t&& p_range, size_t p_count, const type_t& p_value, binary_pred_t p_pred) -> range_iterator_t<range_t>
 	{
 		return ranges::search_n(std::begin(p_range), std::end(p_range), p_count, p_value, p_pred);
@@ -2377,12 +2496,14 @@ namespace ranges
 		return ranges::find(p_first, p_last, p_value) != p_last;
 	}
 
-	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto contains(range_t&& p_range, const type_t& p_value) -> bool
+	template <typename range_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto contains(range_t&& p_range, const type_t& p_value) -> bool
 	{
 		return ranges::contains(std::begin(p_range), std::end(p_range), p_value);
 	}
 
-	template <typename input_iter1, typename input_iter2> inline auto starts_with(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
+	template <typename input_iter1, typename input_iter2>
+	inline auto starts_with(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
 	{
 		for (; p_first1 != p_last1 && p_first2 != p_last2; ++p_first1, ++p_first2)
 			if (!(*p_first1 == *p_first2))
@@ -2396,7 +2517,8 @@ namespace ranges
 		return ranges::starts_with(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2));
 	}
 
-	template <typename input_iter1, typename input_iter2> inline auto ends_with(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
+	template <typename input_iter1, typename input_iter2>
+	inline auto ends_with(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
 	{
 		auto len1 = std::distance(p_first1, p_last1);
 		auto len2 = std::distance(p_first2, p_last2);
@@ -2411,7 +2533,8 @@ namespace ranges
 		return ranges::ends_with(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2));
 	}
 
-	template <typename input_iter, typename size_t, typename output_iter> inline auto copy_n(input_iter p_first, size_t p_n, output_iter p_result) -> in_out_result<input_iter, output_iter>
+	template <typename input_iter, typename size_t, typename output_iter>
+	inline auto copy_n(input_iter p_first, size_t p_n, output_iter p_result) -> in_out_result<input_iter, output_iter>
 	{
 		for (size_t idx_for = 0; idx_for < p_n; ++idx_for, ++p_first, ++p_result)
 			*p_result = *p_first;
@@ -2459,21 +2582,24 @@ namespace ranges
 		return ranges::move_backward(std::begin(p_range), std::end(p_range), p_result);
 	}
 
-	template <typename output_iter, typename size_t, typename type_t> inline auto fill_n(output_iter p_first, size_t p_n, const type_t& p_value) -> output_iter
+	template <typename output_iter, typename size_t, typename type_t>
+	inline auto fill_n(output_iter p_first, size_t p_n, const type_t& p_value) -> output_iter
 	{
 		for (size_t idx_for = 0; idx_for < p_n; ++idx_for, ++p_first)
 			*p_first = p_value;
 		return p_first;
 	}
 
-	template <typename output_iter, typename size_t, typename generator_t> inline auto generate_n(output_iter p_first, size_t p_n, generator_t p_gen) -> output_iter
+	template <typename output_iter, typename size_t, typename generator_t>
+	inline auto generate_n(output_iter p_first, size_t p_n, generator_t p_gen) -> output_iter
 	{
 		for (size_t idx_for = 0; idx_for < p_n; ++idx_for, ++p_first)
 			*p_first = p_gen();
 		return p_first;
 	}
 
-	template <typename forward_iter1, typename forward_iter2> inline auto swap_ranges(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2) -> forward_iter2
+	template <typename forward_iter1, typename forward_iter2>
+	inline auto swap_ranges(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2) -> forward_iter2
 	{
 		for (; p_first1 != p_last1; ++p_first1, ++p_first2)
 			std::iter_swap(p_first1, p_first2);
@@ -2486,7 +2612,8 @@ namespace ranges
 		return ranges::swap_ranges(std::begin(p_range1), std::end(p_range1), std::begin(p_range2));
 	}
 
-	template <typename forward_iter, typename type_t> inline auto replace(forward_iter p_first, forward_iter p_last, const type_t& p_old_value, const type_t& p_new_value) -> void
+	template <typename forward_iter, typename type_t>
+	inline auto replace(forward_iter p_first, forward_iter p_last, const type_t& p_old_value, const type_t& p_new_value) -> void
 	{
 		for (; p_first != p_last; ++p_first)
 			if (*p_first == p_old_value)
@@ -2499,7 +2626,8 @@ namespace ranges
 		ranges::replace(std::begin(p_range), std::end(p_range), p_old_value, p_new_value);
 	}
 
-	template <typename forward_iter, typename pred_t, typename type_t> inline auto replace_if(forward_iter p_first, forward_iter p_last, pred_t p_pred, const type_t& p_new_value) -> void
+	template <typename forward_iter, typename pred_t, typename type_t>
+	inline auto replace_if(forward_iter p_first, forward_iter p_last, pred_t p_pred, const type_t& p_new_value) -> void
 	{
 		for (; p_first != p_last; ++p_first)
 			if (p_pred(*p_first))
@@ -2571,12 +2699,14 @@ namespace ranges
 		return ++result;
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto unique(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto unique(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::unique(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename binary_pred_t> inline auto unique(forward_iter p_first, forward_iter p_last, binary_pred_t p_pred) -> forward_iter
+	template <typename forward_iter, typename binary_pred_t>
+	inline auto unique(forward_iter p_first, forward_iter p_last, binary_pred_t p_pred) -> forward_iter
 	{
 		if (p_first == p_last)
 			return p_last;
@@ -2601,7 +2731,8 @@ namespace ranges
 	}
 
 	template <typename input_iter, typename output_iter, typename type_t>
-	inline auto replace_copy(input_iter p_first, input_iter p_last, output_iter p_result, const type_t& p_old_value, const type_t& p_new_value) -> output_iter
+	inline auto replace_copy(input_iter p_first, input_iter p_last, output_iter p_result, const type_t& p_old_value, const type_t& p_new_value)
+		-> output_iter
 	{
 		for (; p_first != p_last; ++p_first, ++p_result)
 			*p_result = (*p_first == p_old_value) ? p_new_value : *p_first;
@@ -2622,13 +2753,18 @@ namespace ranges
 		return p_result;
 	}
 
-	template <typename range_t, typename output_iter, typename pred_t, typename type_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	template <typename range_t,
+			  typename output_iter,
+			  typename pred_t,
+			  typename type_t,
+			  typename = typename std::enable_if<is_range<range_t>::value>::type>
 	inline auto replace_copy_if(range_t&& p_range, output_iter p_result, pred_t p_pred, const type_t& p_new_value) -> output_iter
 	{
 		return ranges::replace_copy_if(std::begin(p_range), std::end(p_range), p_result, p_pred, p_new_value);
 	}
 
-	template <typename bidirectional_iter, typename output_iter> inline auto reverse_copy(bidirectional_iter p_first, bidirectional_iter p_last, output_iter p_result) -> output_iter
+	template <typename bidirectional_iter, typename output_iter>
+	inline auto reverse_copy(bidirectional_iter p_first, bidirectional_iter p_last, output_iter p_result) -> output_iter
 	{
 		while (p_first != p_last)
 			*p_result++ = *(--p_last);
@@ -2641,7 +2777,8 @@ namespace ranges
 		return ranges::reverse_copy(std::begin(p_range), std::end(p_range), p_result);
 	}
 
-	template <typename forward_iter, typename output_iter> inline auto rotate_copy(forward_iter p_first, forward_iter p_middle, forward_iter p_last, output_iter p_result) -> output_iter
+	template <typename forward_iter, typename output_iter>
+	inline auto rotate_copy(forward_iter p_first, forward_iter p_middle, forward_iter p_last, output_iter p_result) -> output_iter
 	{
 		p_result = ranges::copy(p_middle, p_last, p_result);
 		return ranges::copy(p_first, p_middle, p_result);
@@ -2653,7 +2790,8 @@ namespace ranges
 		return ranges::rotate_copy(std::begin(p_range), p_middle, std::end(p_range), p_result);
 	}
 
-	template <typename input_iter, typename output_iter> inline auto unique_copy(input_iter p_first, input_iter p_last, output_iter p_result) -> output_iter
+	template <typename input_iter, typename output_iter>
+	inline auto unique_copy(input_iter p_first, input_iter p_last, output_iter p_result) -> output_iter
 	{
 		if (p_first == p_last)
 			return p_result;
@@ -2698,12 +2836,14 @@ namespace ranges
 		return true;
 	}
 
-	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto is_partitioned(range_t&& p_range, pred_t p_pred) -> bool
+	template <typename range_t, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto is_partitioned(range_t&& p_range, pred_t p_pred) -> bool
 	{
 		return ranges::is_partitioned(std::begin(p_range), std::end(p_range), p_pred);
 	}
 
-	template <typename forward_iter, typename pred_t> inline auto partition_point(forward_iter p_first, forward_iter p_last, pred_t p_pred) -> forward_iter
+	template <typename forward_iter, typename pred_t>
+	inline auto partition_point(forward_iter p_first, forward_iter p_last, pred_t p_pred) -> forward_iter
 	{
 		auto len = std::distance(p_first, p_last);
 		while (len > 0)
@@ -2739,7 +2879,8 @@ namespace ranges
 		return ranges::partition(std::begin(p_range), std::end(p_range), p_pred);
 	}
 
-	template <typename bidirectional_iter, typename pred_t> inline auto stable_partition(bidirectional_iter p_first, bidirectional_iter p_last, pred_t p_pred) -> bidirectional_iter
+	template <typename bidirectional_iter, typename pred_t>
+	inline auto stable_partition(bidirectional_iter p_first, bidirectional_iter p_last, pred_t p_pred) -> bidirectional_iter
 	{
 		return std::stable_partition(p_first, p_last, p_pred);
 	}
@@ -2751,7 +2892,8 @@ namespace ranges
 	}
 
 	template <typename input_iter, typename output_iter1, typename output_iter2, typename pred_t>
-	inline auto partition_copy(input_iter p_first, input_iter p_last, output_iter1 p_out_true, output_iter2 p_out_false, pred_t p_pred) -> in_in_result<output_iter1, output_iter2>
+	inline auto partition_copy(input_iter p_first, input_iter p_last, output_iter1 p_out_true, output_iter2 p_out_false, pred_t p_pred)
+		-> in_in_result<output_iter1, output_iter2>
 	{
 		for (; p_first != p_last; ++p_first)
 			if (p_pred(*p_first))
@@ -2761,8 +2903,13 @@ namespace ranges
 		return {p_out_true, p_out_false};
 	}
 
-	template <typename range_t, typename output_iter1, typename output_iter2, typename pred_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
-	inline auto partition_copy(range_t&& p_range, output_iter1 p_out_true, output_iter2 p_out_false, pred_t p_pred) -> in_in_result<output_iter1, output_iter2>
+	template <typename range_t,
+			  typename output_iter1,
+			  typename output_iter2,
+			  typename pred_t,
+			  typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto partition_copy(range_t&& p_range, output_iter1 p_out_true, output_iter2 p_out_false, pred_t p_pred)
+		-> in_in_result<output_iter1, output_iter2>
 	{
 		return ranges::partition_copy(std::begin(p_range), std::end(p_range), p_out_true, p_out_false, p_pred);
 	}
@@ -2782,7 +2929,8 @@ namespace ranges
 		return std::is_sorted(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto is_sorted(range_t&& p_range, compare_t p_comp) -> bool
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto is_sorted(range_t&& p_range, compare_t p_comp) -> bool
 	{
 		return ranges::is_sorted(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -2792,12 +2940,14 @@ namespace ranges
 		return std::is_sorted_until(p_first, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto is_sorted_until(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto is_sorted_until(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::is_sorted_until(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename compare_t> inline auto is_sorted_until(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
+	template <typename forward_iter, typename compare_t>
+	inline auto is_sorted_until(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> forward_iter
 	{
 		return std::is_sorted_until(p_first, p_last, p_comp);
 	}
@@ -2823,7 +2973,8 @@ namespace ranges
 		std::stable_sort(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto stable_sort(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto stable_sort(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::stable_sort(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -2833,12 +2984,14 @@ namespace ranges
 		std::partial_sort(p_first, p_middle, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto partial_sort(range_t&& p_range, range_iterator_t<range_t> p_middle) -> void
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto partial_sort(range_t&& p_range, range_iterator_t<range_t> p_middle) -> void
 	{
 		ranges::partial_sort(std::begin(p_range), p_middle, std::end(p_range));
 	}
 
-	template <typename random_iter, typename compare_t> inline auto partial_sort(random_iter p_first, random_iter p_middle, random_iter p_last, compare_t p_comp) -> void
+	template <typename random_iter, typename compare_t>
+	inline auto partial_sort(random_iter p_first, random_iter p_middle, random_iter p_last, compare_t p_comp) -> void
 	{
 		std::partial_sort(p_first, p_middle, p_last, p_comp);
 	}
@@ -2854,12 +3007,14 @@ namespace ranges
 		std::nth_element(p_first, p_nth, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto nth_element(range_t&& p_range, range_iterator_t<range_t> p_nth) -> void
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto nth_element(range_t&& p_range, range_iterator_t<range_t> p_nth) -> void
 	{
 		ranges::nth_element(std::begin(p_range), p_nth, std::end(p_range));
 	}
 
-	template <typename random_iter, typename compare_t> inline auto nth_element(random_iter p_first, random_iter p_nth, random_iter p_last, compare_t p_comp) -> void
+	template <typename random_iter, typename compare_t>
+	inline auto nth_element(random_iter p_first, random_iter p_nth, random_iter p_last, compare_t p_comp) -> void
 	{
 		std::nth_element(p_first, p_nth, p_last, p_comp);
 	}
@@ -2876,25 +3031,32 @@ namespace ranges
 		return std::partial_sort_copy(p_first, p_last, p_result_first, p_result_last);
 	}
 
-	template <typename range_t, typename output_range_t, typename = typename std::enable_if<is_range<range_t>::value && is_range<output_range_t>::value>::type>
+	template <typename range_t,
+			  typename output_range_t,
+			  typename = typename std::enable_if<is_range<range_t>::value && is_range<output_range_t>::value>::type>
 	inline auto partial_sort_copy(range_t&& p_range, output_range_t&& p_result_range) -> range_iterator_t<output_range_t>
 	{
 		return ranges::partial_sort_copy(std::begin(p_range), std::end(p_range), std::begin(p_result_range), std::end(p_result_range));
 	}
 
 	template <typename input_iter, typename random_iter, typename compare_t>
-	inline auto partial_sort_copy(input_iter p_first, input_iter p_last, random_iter p_result_first, random_iter p_result_last, compare_t p_comp) -> random_iter
+	inline auto partial_sort_copy(input_iter p_first, input_iter p_last, random_iter p_result_first, random_iter p_result_last, compare_t p_comp)
+		-> random_iter
 	{
 		return std::partial_sort_copy(p_first, p_last, p_result_first, p_result_last, p_comp);
 	}
 
-	template <typename range_t, typename output_range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value && is_range<output_range_t>::value>::type>
+	template <typename range_t,
+			  typename output_range_t,
+			  typename compare_t,
+			  typename = typename std::enable_if<is_range<range_t>::value && is_range<output_range_t>::value>::type>
 	inline auto partial_sort_copy(range_t&& p_range, output_range_t&& p_result_range, compare_t p_comp) -> range_iterator_t<output_range_t>
 	{
 		return ranges::partial_sort_copy(std::begin(p_range), std::end(p_range), std::begin(p_result_range), std::end(p_result_range), p_comp);
 	}
 
-	template <typename forward_iter, typename type_t> inline auto lower_bound(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
+	template <typename forward_iter, typename type_t>
+	inline auto lower_bound(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
 	{
 		return std::lower_bound(p_first, p_last, p_value);
 	}
@@ -2917,7 +3079,8 @@ namespace ranges
 		return ranges::lower_bound(std::begin(p_range), std::end(p_range), p_value, p_comp);
 	}
 
-	template <typename forward_iter, typename type_t> inline auto upper_bound(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
+	template <typename forward_iter, typename type_t>
+	inline auto upper_bound(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> forward_iter
 	{
 		return std::upper_bound(p_first, p_last, p_value);
 	}
@@ -2940,7 +3103,8 @@ namespace ranges
 		return ranges::upper_bound(std::begin(p_range), std::end(p_range), p_value, p_comp);
 	}
 
-	template <typename forward_iter, typename type_t> inline auto binary_search(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> bool
+	template <typename forward_iter, typename type_t>
+	inline auto binary_search(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> bool
 	{
 		return std::binary_search(p_first, p_last, p_value);
 	}
@@ -2963,7 +3127,8 @@ namespace ranges
 		return ranges::binary_search(std::begin(p_range), std::end(p_range), p_value, p_comp);
 	}
 
-	template <typename forward_iter, typename type_t> inline auto equal_range(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> subrange<forward_iter>
+	template <typename forward_iter, typename type_t>
+	inline auto equal_range(forward_iter p_first, forward_iter p_last, const type_t& p_value) -> subrange<forward_iter>
 	{
 		auto pair_result = std::equal_range(p_first, p_last, p_value);
 		return subrange<forward_iter>(pair_result.first, pair_result.second);
@@ -2994,14 +3159,18 @@ namespace ranges
 		return std::merge(p_first1, p_last1, p_first2, p_last2, p_result);
 	}
 
-	template <typename range1_t, typename range2_t, typename output_iter, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename output_iter,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto merge(range1_t&& p_range1, range2_t&& p_range2, output_iter p_result) -> output_iter
 	{
 		return ranges::merge(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter, typename compare_t>
-	inline auto merge(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
+	inline auto merge(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp)
+		-> output_iter
 	{
 		return std::merge(p_first1, p_last1, p_first2, p_last2, p_result, p_comp);
 	}
@@ -3017,19 +3186,25 @@ namespace ranges
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter>
-	inline auto set_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result) -> output_iter
+	inline auto set_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result)
+		-> output_iter
 	{
 		return std::set_difference(p_first1, p_last1, p_first2, p_last2, p_result);
 	}
 
-	template <typename range1_t, typename range2_t, typename output_iter, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename output_iter,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto set_difference(range1_t&& p_range1, range2_t&& p_range2, output_iter p_result) -> output_iter
 	{
 		return ranges::set_difference(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter, typename compare_t>
-	inline auto set_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
+	inline auto
+	set_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp)
+		-> output_iter
 	{
 		return std::set_difference(p_first1, p_last1, p_first2, p_last2, p_result, p_comp);
 	}
@@ -3045,19 +3220,25 @@ namespace ranges
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter>
-	inline auto set_intersection(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result) -> output_iter
+	inline auto set_intersection(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result)
+		-> output_iter
 	{
 		return std::set_intersection(p_first1, p_last1, p_first2, p_last2, p_result);
 	}
 
-	template <typename range1_t, typename range2_t, typename output_iter, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename output_iter,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto set_intersection(range1_t&& p_range1, range2_t&& p_range2, output_iter p_result) -> output_iter
 	{
 		return ranges::set_intersection(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter, typename compare_t>
-	inline auto set_intersection(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
+	inline auto
+	set_intersection(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp)
+		-> output_iter
 	{
 		return std::set_intersection(p_first1, p_last1, p_first2, p_last2, p_result, p_comp);
 	}
@@ -3078,14 +3259,19 @@ namespace ranges
 		return std::set_union(p_first1, p_last1, p_first2, p_last2, p_result);
 	}
 
-	template <typename range1_t, typename range2_t, typename output_iter, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename output_iter,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto set_union(range1_t&& p_range1, range2_t&& p_range2, output_iter p_result) -> output_iter
 	{
 		return ranges::set_union(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter, typename compare_t>
-	inline auto set_union(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
+	inline auto
+	set_union(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp)
+		-> output_iter
 	{
 		return std::set_union(p_first1, p_last1, p_first2, p_last2, p_result, p_comp);
 	}
@@ -3100,7 +3286,8 @@ namespace ranges
 		return ranges::set_union(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result, p_comp);
 	}
 
-	template <typename input_iter1, typename input_iter2> inline auto includes(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
+	template <typename input_iter1, typename input_iter2>
+	inline auto includes(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2) -> bool
 	{
 		return std::includes(p_first1, p_last1, p_first2, p_last2);
 	}
@@ -3117,26 +3304,34 @@ namespace ranges
 		return std::includes(p_first1, p_last1, p_first2, p_last2, p_comp);
 	}
 
-	template <typename range1_t, typename range2_t, typename compare_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename compare_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto includes(range1_t&& p_range1, range2_t&& p_range2, compare_t p_comp) -> bool
 	{
 		return ranges::includes(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_comp);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter>
-	inline auto set_symmetric_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result) -> output_iter
+	inline auto set_symmetric_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result)
+		-> output_iter
 	{
 		return std::set_symmetric_difference(p_first1, p_last1, p_first2, p_last2, p_result);
 	}
 
-	template <typename range1_t, typename range2_t, typename output_iter, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename output_iter,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto set_symmetric_difference(range1_t&& p_range1, range2_t&& p_range2, output_iter p_result) -> output_iter
 	{
 		return ranges::set_symmetric_difference(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result);
 	}
 
 	template <typename input_iter1, typename input_iter2, typename output_iter, typename compare_t>
-	inline auto set_symmetric_difference(input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
+	inline auto set_symmetric_difference(
+		input_iter1 p_first1, input_iter1 p_last1, input_iter2 p_first2, input_iter2 p_last2, output_iter p_result, compare_t p_comp) -> output_iter
 	{
 		return std::set_symmetric_difference(p_first1, p_last1, p_first2, p_last2, p_result, p_comp);
 	}
@@ -3151,12 +3346,14 @@ namespace ranges
 		return ranges::set_symmetric_difference(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), std::end(p_range2), p_result, p_comp);
 	}
 
-	template <typename bidirectional_iter> inline auto inplace_merge(bidirectional_iter p_first, bidirectional_iter p_middle, bidirectional_iter p_last) -> void
+	template <typename bidirectional_iter>
+	inline auto inplace_merge(bidirectional_iter p_first, bidirectional_iter p_middle, bidirectional_iter p_last) -> void
 	{
 		std::inplace_merge(p_first, p_middle, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto inplace_merge(range_t&& p_range, range_iterator_t<range_t> p_middle) -> void
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto inplace_merge(range_t&& p_range, range_iterator_t<range_t> p_middle) -> void
 	{
 		ranges::inplace_merge(std::begin(p_range), p_middle, std::end(p_range));
 	}
@@ -3188,7 +3385,8 @@ namespace ranges
 		return std::is_heap(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto is_heap(range_t&& p_range, compare_t p_comp) -> bool
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto is_heap(range_t&& p_range, compare_t p_comp) -> bool
 	{
 		return ranges::is_heap(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -3198,12 +3396,14 @@ namespace ranges
 		return std::is_heap_until(p_first, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto is_heap_until(range_t&& p_range) -> range_iterator_t<range_t>
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto is_heap_until(range_t&& p_range) -> range_iterator_t<range_t>
 	{
 		return ranges::is_heap_until(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename random_iter, typename compare_t> inline auto is_heap_until(random_iter p_first, random_iter p_last, compare_t p_comp) -> random_iter
+	template <typename random_iter, typename compare_t>
+	inline auto is_heap_until(random_iter p_first, random_iter p_last, compare_t p_comp) -> random_iter
 	{
 		return std::is_heap_until(p_first, p_last, p_comp);
 	}
@@ -3229,7 +3429,8 @@ namespace ranges
 		std::make_heap(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto make_heap(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto make_heap(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::make_heap(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -3249,7 +3450,8 @@ namespace ranges
 		std::sort_heap(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto sort_heap(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto sort_heap(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::sort_heap(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -3269,7 +3471,8 @@ namespace ranges
 		std::push_heap(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto push_heap(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto push_heap(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::push_heap(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -3289,7 +3492,8 @@ namespace ranges
 		std::pop_heap(p_first, p_last, p_comp);
 	}
 
-	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto pop_heap(range_t&& p_range, compare_t p_comp) -> void
+	template <typename range_t, typename compare_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto pop_heap(range_t&& p_range, compare_t p_comp) -> void
 	{
 		ranges::pop_heap(std::begin(p_range), std::end(p_range), p_comp);
 	}
@@ -3319,12 +3523,14 @@ namespace ranges
 		return (p_b < p_a) ? min_max_result<const type_t&, const type_t&>{p_b, p_a} : min_max_result<const type_t&, const type_t&>{p_a, p_b};
 	}
 
-	template <typename type_t, typename compare_t> inline auto minmax(const type_t& p_a, const type_t& p_b, compare_t p_comp) -> min_max_result<const type_t&, const type_t&>
+	template <typename type_t, typename compare_t>
+	inline auto minmax(const type_t& p_a, const type_t& p_b, compare_t p_comp) -> min_max_result<const type_t&, const type_t&>
 	{
 		return p_comp(p_b, p_a) ? min_max_result<const type_t&, const type_t&>{p_b, p_a} : min_max_result<const type_t&, const type_t&>{p_a, p_b};
 	}
 
-	template <typename forward_iter> inline auto minmax_element(forward_iter p_first, forward_iter p_last) -> min_max_result<forward_iter, forward_iter>
+	template <typename forward_iter>
+	inline auto minmax_element(forward_iter p_first, forward_iter p_last) -> min_max_result<forward_iter, forward_iter>
 	{
 		auto pair_result = std::minmax_element(p_first, p_last);
 		return {pair_result.first, pair_result.second};
@@ -3336,7 +3542,8 @@ namespace ranges
 		return ranges::minmax_element(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename forward_iter, typename compare_t> inline auto minmax_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> min_max_result<forward_iter, forward_iter>
+	template <typename forward_iter, typename compare_t>
+	inline auto minmax_element(forward_iter p_first, forward_iter p_last, compare_t p_comp) -> min_max_result<forward_iter, forward_iter>
 	{
 		auto pair_result = std::minmax_element(p_first, p_last, p_comp);
 		return {pair_result.first, pair_result.second};
@@ -3353,12 +3560,14 @@ namespace ranges
 		return (p_v < p_lo) ? p_lo : (p_hi < p_v) ? p_hi : p_v;
 	}
 
-	template <typename type_t, typename compare_t> inline auto clamp(const type_t& p_v, const type_t& p_lo, const type_t& p_hi, compare_t p_comp) -> const type_t&
+	template <typename type_t, typename compare_t>
+	inline auto clamp(const type_t& p_v, const type_t& p_lo, const type_t& p_hi, compare_t p_comp) -> const type_t&
 	{
 		return p_comp(p_v, p_lo) ? p_lo : p_comp(p_hi, p_v) ? p_hi : p_v;
 	}
 
-	template <typename forward_iter1, typename forward_iter2> inline auto is_permutation(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2) -> bool
+	template <typename forward_iter1, typename forward_iter2>
+	inline auto is_permutation(forward_iter1 p_first1, forward_iter1 p_last1, forward_iter2 p_first2) -> bool
 	{
 		return std::is_permutation(p_first1, p_last1, p_first2);
 	}
@@ -3375,7 +3584,10 @@ namespace ranges
 		return std::is_permutation(p_first1, p_last1, p_first2, p_pred);
 	}
 
-	template <typename range1_t, typename range2_t, typename binary_pred_t, typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
+	template <typename range1_t,
+			  typename range2_t,
+			  typename binary_pred_t,
+			  typename = typename std::enable_if<is_range<range1_t>::value && is_range<range2_t>::value>::type>
 	inline auto is_permutation(range1_t&& p_range1, range2_t&& p_range2, binary_pred_t p_pred) -> bool
 	{
 		return ranges::is_permutation(std::begin(p_range1), std::end(p_range1), std::begin(p_range2), p_pred);
@@ -3386,12 +3598,14 @@ namespace ranges
 		return std::next_permutation(p_first, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto next_permutation(range_t&& p_range) -> bool
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto next_permutation(range_t&& p_range) -> bool
 	{
 		return ranges::next_permutation(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename bidirectional_iter, typename compare_t> inline auto next_permutation(bidirectional_iter p_first, bidirectional_iter p_last, compare_t p_comp) -> bool
+	template <typename bidirectional_iter, typename compare_t>
+	inline auto next_permutation(bidirectional_iter p_first, bidirectional_iter p_last, compare_t p_comp) -> bool
 	{
 		return std::next_permutation(p_first, p_last, p_comp);
 	}
@@ -3407,12 +3621,14 @@ namespace ranges
 		return std::prev_permutation(p_first, p_last);
 	}
 
-	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type> inline auto prev_permutation(range_t&& p_range) -> bool
+	template <typename range_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
+	inline auto prev_permutation(range_t&& p_range) -> bool
 	{
 		return ranges::prev_permutation(std::begin(p_range), std::end(p_range));
 	}
 
-	template <typename bidirectional_iter, typename compare_t> inline auto prev_permutation(bidirectional_iter p_first, bidirectional_iter p_last, compare_t p_comp) -> bool
+	template <typename bidirectional_iter, typename compare_t>
+	inline auto prev_permutation(bidirectional_iter p_first, bidirectional_iter p_last, compare_t p_comp) -> bool
 	{
 		return std::prev_permutation(p_first, p_last, p_comp);
 	}
@@ -3436,7 +3652,8 @@ namespace ranges
 	namespace detail
 	{
 		template <typename input_iter, typename sent_t, typename output_iter, typename distance_t, typename gen_t, typename distr_t>
-		auto sample_forward_impl(input_iter p_first, sent_t p_last, output_iter p_out, distance_t p_n, gen_t&& p_gen, distr_t& p_dist) -> in_out_result<input_iter, output_iter>
+		auto sample_forward_impl(input_iter p_first, sent_t p_last, output_iter p_out, distance_t p_n, gen_t&& p_gen, distr_t& p_dist)
+			-> in_out_result<input_iter, output_iter>
 		{
 			using param_t		 = typename distr_t::param_type;
 			auto remaining		 = std::distance(p_first, p_last);
@@ -3453,7 +3670,8 @@ namespace ranges
 		}
 
 		template <typename input_iter, typename sent_t, typename output_iter, typename distance_t, typename gen_t, typename distr_t>
-		auto sample_input_impl(input_iter p_first, sent_t p_last, output_iter p_out, distance_t p_n, gen_t&& p_gen, distr_t& p_dist) -> in_out_result<input_iter, output_iter>
+		auto sample_input_impl(input_iter p_first, sent_t p_last, output_iter p_out, distance_t p_n, gen_t&& p_gen, distr_t& p_dist)
+			-> in_out_result<input_iter, output_iter>
 		{
 			using param_t				= typename distr_t::param_type;
 			distance_t sample_size		= 0;
@@ -3515,152 +3733,185 @@ namespace ranges
 }	 // namespace ranges
 
 template <typename range_t, typename func_t>
-inline auto operator|(range_t&& p_range, const typename ranges::views::filter_adaptor::partial<func_t>& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+inline auto operator|(range_t&& p_range, const typename ranges::views::filter_adaptor::partial<func_t>& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
 template <typename range_t, typename func_t>
-inline auto operator|(const range_t& p_range, const typename ranges::views::filter_adaptor::partial<func_t>& p_adaptor) -> decltype(p_adaptor(p_range))
+inline auto operator|(const range_t& p_range, const typename ranges::views::filter_adaptor::partial<func_t>& p_adaptor)
+	-> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
 template <typename range_t, typename func_t>
-inline auto operator|(range_t&& p_range, const typename ranges::views::transform_adaptor::partial<func_t>& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+inline auto operator|(range_t&& p_range, const typename ranges::views::transform_adaptor::partial<func_t>& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
 template <typename range_t, typename func_t>
-inline auto operator|(const range_t& p_range, const typename ranges::views::transform_adaptor::partial<func_t>& p_adaptor) -> decltype(p_adaptor(p_range))
+inline auto operator|(const range_t& p_range, const typename ranges::views::transform_adaptor::partial<func_t>& p_adaptor)
+	-> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::take_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::take_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::take_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::take_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::drop_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::drop_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::drop_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::drop_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::sort_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::sort_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::sort_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::sort_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::sort_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::sort_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
 {
 	return p_adaptor()(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::sort_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::sort_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
 {
 	return p_adaptor()(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::unique_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::unique_adaptor::partial& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::unique_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::unique_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::unique_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::unique_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
 {
 	return p_adaptor()(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::unique_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::unique_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
 {
 	return p_adaptor()(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::enumerate_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::enumerate_adaptor::partial& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::enumerate_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::enumerate_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::enumerate_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::enumerate_adaptor& p_adaptor) -> decltype(p_adaptor()(std::forward<range_t>(p_range)))
 {
 	return p_adaptor()(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::enumerate_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::enumerate_adaptor& p_adaptor) -> decltype(p_adaptor()(p_range))
 {
 	return p_adaptor()(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::join_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::join_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::join_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::join_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::common_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::common_adaptor::partial& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::common_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::common_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
-template <typename range_t> inline auto operator|(range_t&& p_range, const ranges::views::reverse_adaptor::partial& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+template <typename range_t>
+inline auto operator|(range_t&& p_range, const ranges::views::reverse_adaptor::partial& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t> inline auto operator|(const range_t& p_range, const ranges::views::reverse_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t>
+inline auto operator|(const range_t& p_range, const ranges::views::reverse_adaptor::partial& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
 template <typename range_t, typename container_t>
-inline auto operator|(range_t&& p_range, const ranges::views::to_partial<container_t>& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+inline auto operator|(range_t&& p_range, const ranges::views::to_partial<container_t>& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }
 
-template <typename range_t, typename container_t> inline auto operator|(const range_t& p_range, const ranges::views::to_partial<container_t>& p_adaptor) -> decltype(p_adaptor(p_range))
+template <typename range_t, typename container_t>
+inline auto operator|(const range_t& p_range, const ranges::views::to_partial<container_t>& p_adaptor) -> decltype(p_adaptor(p_range))
 {
 	return p_adaptor(p_range);
 }
 
 template <typename range_t, typename delimiter_t>
-inline auto operator|(range_t&& p_range, const ranges::views::join_with_adaptor::partial<delimiter_t>& p_adaptor) -> decltype(p_adaptor(std::forward<range_t>(p_range)))
+inline auto operator|(range_t&& p_range, const ranges::views::join_with_adaptor::partial<delimiter_t>& p_adaptor)
+	-> decltype(p_adaptor(std::forward<range_t>(p_range)))
 {
 	return p_adaptor(std::forward<range_t>(p_range));
 }

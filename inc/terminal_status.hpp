@@ -1,6 +1,7 @@
 #ifndef TERMINAL_STATUS_HPP
 #define TERMINAL_STATUS_HPP
 
+#include <algorithm>
 #include <atomic>
 #include <csignal>
 #include <cstdint>
@@ -13,6 +14,8 @@
 #include <unistd.h>
 
 #include "format.hpp"
+#include "precision_timer.hpp"
+#include "utils_manip.hpp"
 
 namespace terminal
 {
@@ -28,6 +31,7 @@ namespace terminal
 		using self_t = status_manager;
 
 	private:
+		utils::precision_timer<std::chrono::milliseconds> m_timer;
 		std::map<std::int32_t, std::string> m_lines;
 		std::int32_t m_requested_lines;
 		std::int32_t m_term_rows;
@@ -37,6 +41,7 @@ namespace terminal
 		static std::atomic<bool> s_resize_pending;
 		struct sigaction m_old_sigwinch_handler;
 		bool m_signal_handler_set;
+		std::uint32_t m_last_elapsed_ms;
 
 	public:
 		/**
@@ -61,7 +66,10 @@ namespace terminal
 		/**
 		 * @brief Default constructor
 		 */
-		status_manager() : m_requested_lines(0), m_term_rows(0), m_term_cols(0), m_initialized(false), m_signal_handler_set(false) {}
+		status_manager()
+			: m_requested_lines(0), m_term_rows(0), m_term_cols(0), m_initialized(false), m_signal_handler_set(false), m_last_elapsed_ms(0)
+		{
+		}
 
 		status_manager(const self_t&)			 = delete;
 		auto operator=(const self_t&) -> self_t& = delete;
@@ -76,7 +84,8 @@ namespace terminal
 			  m_term_cols(p_other.m_term_cols),
 			  m_initialized(p_other.m_initialized),
 			  m_old_sigwinch_handler(p_other.m_old_sigwinch_handler),
-			  m_signal_handler_set(p_other.m_signal_handler_set)
+			  m_signal_handler_set(p_other.m_signal_handler_set),
+			  m_last_elapsed_ms(p_other.m_last_elapsed_ms)
 		{
 			p_other.m_initialized		 = false;
 			p_other.m_signal_handler_set = false;
@@ -108,6 +117,7 @@ namespace terminal
 				m_initialized				 = p_other.m_initialized;
 				m_old_sigwinch_handler		 = p_other.m_old_sigwinch_handler;
 				m_signal_handler_set		 = p_other.m_signal_handler_set;
+				m_last_elapsed_ms			 = p_other.m_last_elapsed_ms;
 				p_other.m_initialized		 = false;
 				p_other.m_signal_handler_set = false;
 				if (s_active_instance == &p_other)
@@ -370,14 +380,30 @@ namespace terminal
 				return "";
 			}
 
-			std::int32_t perc  = (p_current * 100) / p_total;
-			std::string suffix = std::format(" {}/{} ({}%)", p_current, p_total, perc);
-
-			std::int32_t bar_len = m_term_cols - static_cast<std::int32_t>(suffix.length()) - 2;
-			if (bar_len < 0)
+			if (!m_timer.is_started())
 			{
-				bar_len = 0;
+				m_timer.start();
+				m_last_elapsed_ms = 0;
 			}
+
+			const std::uint32_t total_elapsed_ms = m_timer.get_elapsed().count();
+			const std::uint32_t delta_ms		 = total_elapsed_ms - m_last_elapsed_ms;
+			m_last_elapsed_ms					 = total_elapsed_ms;
+
+			std::int32_t perc = (p_current * 100) / p_total;
+
+			std::string time_info = "";
+			if (p_current > 0 && total_elapsed_ms > 0)
+			{
+				const double avg_ms_per_item  = static_cast<double>(total_elapsed_ms) / static_cast<double>(p_current);
+				const std::uint32_t remain_ms = static_cast<std::uint32_t>(avg_ms_per_item * static_cast<double>(p_total - p_current));
+
+				time_info = std::format(" | Δ{} ETA:{}", ms_to_string(delta_ms), ms_to_string(remain_ms));
+			}
+
+			std::string suffix	 = std::format(" {}/{} ({}%){}", p_current, p_total, perc, time_info);
+			std::int32_t bar_len = m_term_cols - static_cast<std::int32_t>(suffix.length()) - 2;
+			bar_len				 = std::max(bar_len, 0);
 
 			std::int32_t filled = (perc * bar_len) / 100;
 
