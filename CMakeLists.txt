@@ -3,31 +3,28 @@ project(utils VERSION 0.1.0 LANGUAGES CXX C)
 
 SET(PROJECT_ALIAS ${PROJECT_NAME}::${PROJECT_NAME})
 
-find_package(Threads REQUIRED)
-
 OPTION(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(test)
 endif()
 
-find_library(FMT_LIB fmt)
-find_library(SPDLOG_LIB spdlog)
-find_library(GHC_FILESYSTEM_LIB ghc_filesystem)
-
 FILE(GLOB_RECURSE SOURCES CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c*")
 FILE(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h*")
 
 SET(ALL_SOURCES ${SOURCES} ${HEADERS})
-SET(LIBRARIES Threads::Threads fmt::fmt spdlog::spdlog ghc_filesystem)
+SET(LIBRARIES Threads::Threads fmt::fmt spdlog::spdlog)
 
-if(BUILD_SHARED_LIBS)
-	message(STATUS "Building shared library")
-	add_library(${PROJECT_NAME} SHARED ${ALL_SOURCES})
-else()
-	message(STATUS "Building static library")
-	add_library(${PROJECT_NAME} STATIC ${ALL_SOURCES})
+if (CMAKE_CXX_STANDARD LESS 17)
+	list(APPEND LIBRARIES ghc_filesystem)
+	find_library(GHC_FILESYSTEM_LIB ghc_filesystem)
 endif()
+
+find_package(Threads REQUIRED)
+find_library(FMT_LIB fmt)
+find_library(SPDLOG_LIB spdlog)
+
+add_library(${PROJECT_NAME} ${ALL_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
 	"${CMAKE_CURRENT_SOURCE_DIR}/inc"
