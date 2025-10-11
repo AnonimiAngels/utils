@@ -55,7 +55,10 @@ namespace utils
 		 * @param p_elapse_time Elapse time duration
 		 * @param p_auto_start Whether to start timer automatically
 		 */
-		precision_timer(dur_cref_t p_elapse_time, bool p_auto_start = true) noexcept : m_elapse(p_elapse_time), m_elapsed(dur_t(0)), m_start_time(get_now()), m_started(p_auto_start) {}
+		precision_timer(dur_cref_t p_elapse_time, bool p_auto_start = true) noexcept
+			: m_elapse(p_elapse_time), m_elapsed(dur_t(0)), m_start_time(get_now()), m_started(p_auto_start)
+		{
+		}
 
 	protected:
 		/**
@@ -179,6 +182,21 @@ namespace utils
 			while (!is_elapsed())
 			{
 				std::this_thread::sleep_for(p_sleep_time);
+			}
+		}
+
+		auto wait_elapse_remaining() noexcept -> void
+		{
+			while (!is_elapsed())
+			{
+				// Calculate missing time
+				auto missing_time = get_elapse() - get_elapsed();
+				if (missing_time <= dur_t(0))
+				{
+					break;
+				}
+
+				std::this_thread::sleep_for(missing_time);
 			}
 		}
 	};
