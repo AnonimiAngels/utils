@@ -83,28 +83,6 @@ namespace utils
 	};
 
 	/**
-	 * @brief Exception thrown when accessing value of expected in error state
-	 */
-	template <typename err_t> class bad_expected_access : public std::exception
-	{
-	private:
-		err_t m_error;
-
-	public:
-		explicit bad_expected_access(err_t p_err) : m_error(std::move(p_err)) {}
-
-		auto what() const noexcept -> const char* override { return "bad expected access"; }
-
-		auto error() const& -> const err_t& { return m_error; }
-
-		auto error() & -> err_t& { return m_error; }
-
-		auto error() const&& -> const err_t&& { return std::move(m_error); }
-
-		auto error() && -> err_t&& { return std::move(m_error); }
-	};
-
-	/**
 	 * @brief Main expected template for error handling without exceptions
 	 * @tparam val_t Type of the expected value
 	 * @tparam err_t Type of the error value
@@ -152,9 +130,13 @@ namespace utils
 
 		expected(val_t&& p_val) : m_has_value(true) { new (&m_storage.m_value) val_t(std::move(p_val)); }
 
-		template <typename... args_t> explicit expected(in_place_t, args_t&&... p_args) : m_has_value(true) { new (&m_storage.m_value) val_t(std::forward<args_t>(p_args)...); }
+		template <typename... args_t> explicit expected(in_place_t, args_t&&... p_args) : m_has_value(true)
+		{
+			new (&m_storage.m_value) val_t(std::forward<args_t>(p_args)...);
+		}
 
-		template <typename init_t, typename... args_t> explicit expected(in_place_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
+		template <typename init_t, typename... args_t>
+		explicit expected(in_place_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
 		{
 			new (&m_storage.m_value) val_t(p_il, std::forward<args_t>(p_args)...);
 		}
@@ -163,9 +145,13 @@ namespace utils
 
 		expected(unexpected_type&& p_unex) : m_has_value(false) { new (&m_storage.m_error) err_t(std::move(p_unex.error())); }
 
-		template <typename... args_t> explicit expected(unexpect_t, args_t&&... p_args) : m_has_value(false) { new (&m_storage.m_error) err_t(std::forward<args_t>(p_args)...); }
+		template <typename... args_t> explicit expected(unexpect_t, args_t&&... p_args) : m_has_value(false)
+		{
+			new (&m_storage.m_error) err_t(std::forward<args_t>(p_args)...);
+		}
 
-		template <typename init_t, typename... args_t> explicit expected(unexpect_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(false)
+		template <typename init_t, typename... args_t>
+		explicit expected(unexpect_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(false)
 		{
 			new (&m_storage.m_error) err_t(p_il, std::forward<args_t>(p_args)...);
 		}
@@ -203,7 +189,8 @@ namespace utils
 			return *this;
 		}
 
-		expected(self_t&& p_other) noexcept(is_nothrow_move_constructible<val_t>::value && is_nothrow_move_constructible<err_t>::value) : m_has_value(p_other.m_has_value)
+		expected(self_t&& p_other) noexcept(is_nothrow_move_constructible<val_t>::value && is_nothrow_move_constructible<err_t>::value)
+			: m_has_value(p_other.m_has_value)
 		{
 			if (m_has_value)
 			{
@@ -215,7 +202,8 @@ namespace utils
 			}
 		}
 
-		auto operator=(self_t&& p_other) noexcept(is_nothrow_move_constructible<val_t>::value && is_nothrow_move_constructible<err_t>::value) -> self_t&
+		auto operator=(self_t&& p_other) noexcept(is_nothrow_move_constructible<val_t>::value && is_nothrow_move_constructible<err_t>::value)
+			-> self_t&
 		{
 			if (this != &p_other)
 			{
@@ -256,7 +244,8 @@ namespace utils
 			return *this;
 		}
 
-		template <typename err2_t> auto operator=(const unexpected<err2_t>& p_unex) -> typename enable_if<std::is_assignable<err_t&, const err2_t&>::value, self_t&>::type
+		template <typename err2_t>
+		auto operator=(const unexpected<err2_t>& p_unex) -> typename enable_if<std::is_assignable<err_t&, const err2_t&>::value, self_t&>::type
 		{
 			if (m_has_value)
 			{
@@ -271,8 +260,9 @@ namespace utils
 			return *this;
 		}
 
-		template <typename err2_t> auto operator=(unexpected<err2_t>&& p_unex) -> typename enable_if<std::is_assignable<err_t&, err2_t>::value, self_t&>::type
+		template <typename err2_t> auto operator=(unexpected<err2_t>&& p_unex) -> self_t&
 		{
+			static_assert(std::is_assignable<err_t&, err2_t>::value, "Error type must be assignable");
 			if (m_has_value)
 			{
 				m_storage.m_value.~val_t();
@@ -322,41 +312,13 @@ namespace utils
 
 		explicit operator bool() const noexcept { return m_has_value; }
 
-		auto value() & -> val_t&
-		{
-			if (!m_has_value)
-			{
-				throw bad_expected_access<err_t>(m_storage.m_error);
-			}
-			return m_storage.m_value;
-		}
+		auto value() & noexcept -> val_t& { return m_storage.m_value; }
 
-		auto value() const& -> const val_t&
-		{
-			if (!m_has_value)
-			{
-				throw bad_expected_access<err_t>(m_storage.m_error);
-			}
-			return m_storage.m_value;
-		}
+		auto value() const& -> const val_t& { return m_storage.m_value; }
 
-		auto value() && -> val_t&&
-		{
-			if (!m_has_value)
-			{
-				throw bad_expected_access<err_t>(std::move(m_storage.m_error));
-			}
-			return std::move(m_storage.m_value);
-		}
+		auto value() && -> val_t&& { return std::move(m_storage.m_value); }
 
-		auto value() const&& -> const val_t&&
-		{
-			if (!m_has_value)
-			{
-				throw bad_expected_access<err_t>(std::move(m_storage.m_error));
-			}
-			return std::move(m_storage.m_value);
-		}
+		auto value() const&& -> const val_t&& { return std::move(m_storage.m_value); }
 
 		auto operator*() & noexcept -> val_t& { return m_storage.m_value; }
 
@@ -462,9 +424,13 @@ namespace utils
 
 		expected(unexpected_type&& p_unex) : m_has_value(false) { new (&m_storage.m_error) err_t(std::move(p_unex.error())); }
 
-		template <typename... args_t> explicit expected(unexpect_t, args_t&&... p_args) : m_has_value(false) { new (&m_storage.m_error) err_t(std::forward<args_t>(p_args)...); }
+		template <typename... args_t> explicit expected(unexpect_t, args_t&&... p_args) : m_has_value(false)
+		{
+			new (&m_storage.m_error) err_t(std::forward<args_t>(p_args)...);
+		}
 
-		template <typename init_t, typename... args_t> explicit expected(unexpect_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(false)
+		template <typename init_t, typename... args_t>
+		explicit expected(unexpect_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(false)
 		{
 			new (&m_storage.m_error) err_t(p_il, std::forward<args_t>(p_args)...);
 		}
@@ -527,7 +493,8 @@ namespace utils
 			return *this;
 		}
 
-		template <typename err2_t> auto operator=(const unexpected<err2_t>& p_unex) -> typename enable_if<std::is_assignable<err_t&, const err2_t&>::value, self_t&>::type
+		template <typename err2_t>
+		auto operator=(const unexpected<err2_t>& p_unex) -> typename enable_if<std::is_assignable<err_t&, const err2_t&>::value, self_t&>::type
 		{
 			if (m_has_value)
 			{
@@ -541,7 +508,8 @@ namespace utils
 			return *this;
 		}
 
-		template <typename err2_t> auto operator=(unexpected<err2_t>&& p_unex) -> typename enable_if<std::is_assignable<err_t&, err2_t>::value, self_t&>::type
+		template <typename err2_t>
+		auto operator=(unexpected<err2_t>&& p_unex) -> typename enable_if<std::is_assignable<err_t&, err2_t>::value, self_t&>::type
 		{
 			if (m_has_value)
 			{
@@ -609,7 +577,8 @@ namespace utils
 	/**
 	 * @brief Comparison operators
 	 */
-	template <typename val1_t, typename err1_t, typename val2_t, typename err2_t> auto operator==(const expected<val1_t, err1_t>& p_lhs, const expected<val2_t, err2_t>& p_rhs) -> bool
+	template <typename val1_t, typename err1_t, typename val2_t, typename err2_t>
+	auto operator==(const expected<val1_t, err1_t>& p_lhs, const expected<val2_t, err2_t>& p_rhs) -> bool
 	{
 		if (p_lhs.has_value() != p_rhs.has_value())
 		{
@@ -622,51 +591,60 @@ namespace utils
 		return p_lhs.error() == p_rhs.error();
 	}
 
-	template <typename val1_t, typename err1_t, typename val2_t, typename err2_t> auto operator!=(const expected<val1_t, err1_t>& p_lhs, const expected<val2_t, err2_t>& p_rhs) -> bool
+	template <typename val1_t, typename err1_t, typename val2_t, typename err2_t>
+	auto operator!=(const expected<val1_t, err1_t>& p_lhs, const expected<val2_t, err2_t>& p_rhs) -> bool
 	{
 		return !(p_lhs == p_rhs);
 	}
 
 	template <typename val_t, typename err_t, typename val2_t>
-	auto operator==(const expected<val_t, err_t>& p_exp, const val2_t& p_val) -> typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
+	auto operator==(const expected<val_t, err_t>& p_exp, const val2_t& p_val) ->
+		typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
 	{
 		return p_exp.has_value() && (*p_exp == p_val);
 	}
 
 	template <typename val_t, typename err_t, typename val2_t>
-	auto operator==(const val2_t& p_val, const expected<val_t, err_t>& p_exp) -> typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
+	auto operator==(const val2_t& p_val, const expected<val_t, err_t>& p_exp) ->
+		typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
 	{
 		return p_exp == p_val;
 	}
 
 	template <typename val_t, typename err_t, typename val2_t>
-	auto operator!=(const expected<val_t, err_t>& p_exp, const val2_t& p_val) -> typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
+	auto operator!=(const expected<val_t, err_t>& p_exp, const val2_t& p_val) ->
+		typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
 	{
 		return !(p_exp == p_val);
 	}
 
 	template <typename val_t, typename err_t, typename val2_t>
-	auto operator!=(const val2_t& p_val, const expected<val_t, err_t>& p_exp) -> typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
+	auto operator!=(const val2_t& p_val, const expected<val_t, err_t>& p_exp) ->
+		typename enable_if<!is_same<val2_t, unexpected<err_t> >::value, bool>::type
 	{
 		return !(p_exp == p_val);
 	}
 
-	template <typename val_t, typename err_t, typename err2_t> auto operator==(const expected<val_t, err_t>& p_exp, const unexpected<err2_t>& p_unex) -> bool
+	template <typename val_t, typename err_t, typename err2_t>
+	auto operator==(const expected<val_t, err_t>& p_exp, const unexpected<err2_t>& p_unex) -> bool
 	{
 		return !p_exp.has_value() && (p_exp.error() == p_unex.error());
 	}
 
-	template <typename val_t, typename err_t, typename err2_t> auto operator==(const unexpected<err2_t>& p_unex, const expected<val_t, err_t>& p_exp) -> bool
+	template <typename val_t, typename err_t, typename err2_t>
+	auto operator==(const unexpected<err2_t>& p_unex, const expected<val_t, err_t>& p_exp) -> bool
 	{
 		return p_exp == p_unex;
 	}
 
-	template <typename val_t, typename err_t, typename err2_t> auto operator!=(const expected<val_t, err_t>& p_exp, const unexpected<err2_t>& p_unex) -> bool
+	template <typename val_t, typename err_t, typename err2_t>
+	auto operator!=(const expected<val_t, err_t>& p_exp, const unexpected<err2_t>& p_unex) -> bool
 	{
 		return !(p_exp == p_unex);
 	}
 
-	template <typename val_t, typename err_t, typename err2_t> auto operator!=(const unexpected<err2_t>& p_unex, const expected<val_t, err_t>& p_exp) -> bool
+	template <typename val_t, typename err_t, typename err2_t>
+	auto operator!=(const unexpected<err2_t>& p_unex, const expected<val_t, err_t>& p_exp) -> bool
 	{
 		return !(p_exp == p_unex);
 	}

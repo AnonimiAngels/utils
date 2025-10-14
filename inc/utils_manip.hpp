@@ -2,8 +2,8 @@
 #ifndef UTILS_MANIP
 	#define UTILS_MANIP
 
-	#include "format.hpp"
 	#include "precision_timer.hpp"
+	#include "std/format.hpp"
 
 template <typename duration_t> inline auto time_to_string(utils::precision_timer<duration_t>& p_timer) -> std::string
 {
@@ -95,11 +95,11 @@ inline auto ms_to_string(std::uint32_t p_ms) -> std::string
 	constexpr std::uint32_t min_per_hr	= 60;
 	constexpr std::uint32_t hr_per_day	= 24;
 
-	const std::uint32_t days	= p_ms / (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
-	std::uint32_t remainder		= p_ms % (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
+	const std::uint32_t days = p_ms / (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
+	std::uint32_t remainder	 = p_ms % (ms_per_sec * sec_per_min * min_per_hr * hr_per_day);
 
-	const std::uint32_t hours	= remainder / (ms_per_sec * sec_per_min * min_per_hr);
-	remainder					= remainder % (ms_per_sec * sec_per_min * min_per_hr);
+	const std::uint32_t hours = remainder / (ms_per_sec * sec_per_min * min_per_hr);
+	remainder				  = remainder % (ms_per_sec * sec_per_min * min_per_hr);
 
 	const std::uint32_t minutes = remainder / (ms_per_sec * sec_per_min);
 	remainder					= remainder % (ms_per_sec * sec_per_min);

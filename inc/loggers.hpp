@@ -32,20 +32,12 @@
 
 	#define SPDLOG_HEADER_ONLY
 
-	#if defined(__GNUC__)
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wsign-conversion"
-	#endif
-
-	#include "spdlog/logger.h"
-	#include "spdlog/sinks/basic_file_sink.h"
-	#include "spdlog/sinks/stdout_color_sinks.h"
-	#if defined(__GNUC__)
-		#pragma GCC diagnostic pop
-	#endif
+	#include <spdlog/logger.h>
+	#include <spdlog/sinks/basic_file_sink.h>
+	#include <spdlog/sinks/stdout_color_sinks.h>
 
 	#include "cmemory.hpp"
-	#include "string_view.hpp"
+	#include "std/string_view.hpp"
 
 	#define UNIQUE_PTR_LOGGER std::unique_ptr<utils::logger>
 	#define A_MAKE_UNIQUE_LOGGER std::unique_ptr<utils::logger>(new utils::logger(__FUNCTION__))

@@ -35,7 +35,7 @@
 		#define MACRO_NODISCARD [[nodiscard]]
 	#else
 		#if defined(__has_cpp_attribute)
-			#if __has_cpp_attribute(nodiscard)
+			#if __has_cpp_attribute(nodiscard) && MACRO_CXX17_ENABLED
 				#define MACRO_NODISCARD [[nodiscard]]
 			#else
 				#define MACRO_NODISCARD
