@@ -52,7 +52,11 @@ namespace utils
 
 	template <bool cond, typename type_t = void> struct enable_if
 	{
-		using type = typename std::enable_if<cond, type_t>::type;
+		using type = type_t;
+	};
+
+	template <typename type_t> struct enable_if<false, type_t>
+	{
 	};
 
 	template <bool cond, typename type_t = void> using enable_if_t = typename enable_if<cond, type_t>::type;
@@ -65,7 +69,8 @@ namespace utils
 	{
 	};
 
-	template <typename cond_t, typename... rest_t> struct conjunction<cond_t, rest_t...> : std::conditional<cond_t::value, conjunction<rest_t...>, cond_t>::type
+	template <typename cond_t, typename... rest_t>
+	struct conjunction<cond_t, rest_t...> : std::conditional<cond_t::value, conjunction<rest_t...>, cond_t>::type
 	{
 	};
 
@@ -77,7 +82,8 @@ namespace utils
 	{
 	};
 
-	template <typename cond_t, typename... rest_t> struct disjunction<cond_t, rest_t...> : std::conditional<cond_t::value, cond_t, disjunction<rest_t...> >::type
+	template <typename cond_t, typename... rest_t>
+	struct disjunction<cond_t, rest_t...> : std::conditional<cond_t::value, cond_t, disjunction<rest_t...> >::type
 	{
 	};
 
@@ -86,14 +92,15 @@ namespace utils
 	};
 
 	template <typename type_t> using remove_cvref_t = typename std::remove_cv<typename std::remove_reference<type_t>::type>::type;
-
-	template <typename type_t> using decay_t = typename std::decay<type_t>::type;
+	template <typename type_t> using decay_t		= typename std::decay<type_t>::type;
 
 	template <typename err_t> struct is_valid_expected_error
 	{
-		static constexpr bool value =
-			conjunction<is_destructible<err_t>, std::is_object<err_t>, negation<std::is_array<err_t> >, negation<std::is_const<err_t> >, negation<std::is_volatile<err_t> > >::value;
+		static constexpr bool value = conjunction<is_destructible<err_t>,
+												  std::is_object<err_t>,
+												  negation<std::is_array<err_t> >,
+												  negation<std::is_const<err_t> >,
+												  negation<std::is_volatile<err_t> > >::value;
 	};
 }	 // namespace utils
-
 #endif

@@ -157,18 +157,19 @@ namespace utils
 		}
 
 		template <typename val2_t>
-		auto operator=(val2_t&& p_val) -> typename enable_if<conjunction<negation<is_same<remove_cvref_t<val2_t>, self_t> >,
+		auto operator=(val2_t&& p_val) -> typename enable_if<conjunction<negation<is_same<remove_cvref_t<val2_t>, self_t>>,
 																		 std::is_constructible<val_t, val2_t>,
-																		 std::is_assignable<val_t&, val2_t> >::value,
+																		 std::is_assignable<val_t&, val2_t>>::value,
 															 self_t&>::type
 		{
+			static_assert(std::is_assignable<val_t&, val2_t>::value, "val_t must be assignable from val2_t");
 			if (m_has_value)
 			{
 				m_storage.m_value = std::forward<val2_t>(p_val);
 			}
 			else
 			{
-				new (&m_storage.m_value) val_t(std::forward<val2_t>(p_val));
+				::new (static_cast<void*>(&m_storage.m_value)) val_t(std::forward<val2_t>(p_val));
 				m_has_value = true;
 			}
 			return *this;
@@ -456,9 +457,9 @@ namespace utils
 	/**
 	 * @brief Helper function to create optional value
 	 */
-	template <typename val_t> auto make_optional(val_t&& p_val) -> optional<decay_t<val_t> >
+	template <typename val_t> auto make_optional(val_t&& p_val) -> optional<decay_t<val_t>>
 	{
-		return optional<decay_t<val_t> >(std::forward<val_t>(p_val));
+		return optional<decay_t<val_t>>(std::forward<val_t>(p_val));
 	}
 
 	template <typename val_t, typename... args_t> auto make_optional(args_t&&... p_args) -> optional<val_t>
