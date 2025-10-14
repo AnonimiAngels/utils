@@ -2,7 +2,6 @@
 #define OPTIONAL_HPP
 
 #include <cstdint>
-#include <exception>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
@@ -25,17 +24,6 @@ namespace utils
 	};
 
 	constexpr nullopt_t nullopt{};
-
-	/**
-	 * @brief Exception thrown when accessing value of empty optional
-	 */
-	class bad_optional_access : public std::exception
-	{
-	public:
-		bad_optional_access() = default;
-
-		auto what() const noexcept -> const char* override { return "bad optional access"; }
-	};
 
 	/**
 	 * @brief Main optional template for nullable value semantics
@@ -81,9 +69,13 @@ namespace utils
 
 		optional(val_t&& p_val) : m_has_value(true) { new (&m_storage.m_value) val_t(std::move(p_val)); }
 
-		template <typename... args_t> explicit optional(in_place_t, args_t&&... p_args) : m_has_value(true) { new (&m_storage.m_value) val_t(std::forward<args_t>(p_args)...); }
+		template <typename... args_t> explicit optional(in_place_t, args_t&&... p_args) : m_has_value(true)
+		{
+			new (&m_storage.m_value) val_t(std::forward<args_t>(p_args)...);
+		}
 
-		template <typename init_t, typename... args_t> explicit optional(in_place_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
+		template <typename init_t, typename... args_t>
+		explicit optional(in_place_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
 		{
 			new (&m_storage.m_value) val_t(p_il, std::forward<args_t>(p_args)...);
 		}
@@ -165,9 +157,10 @@ namespace utils
 		}
 
 		template <typename val2_t>
-		auto operator=(val2_t&& p_val) ->
-			typename enable_if<conjunction<negation<is_same<remove_cvref_t<val2_t>, self_t> >, std::is_constructible<val_t, val2_t>, std::is_assignable<val_t&, val2_t> >::value,
-							   self_t&>::type
+		auto operator=(val2_t&& p_val) -> typename enable_if<conjunction<negation<is_same<remove_cvref_t<val2_t>, self_t> >,
+																		 std::is_constructible<val_t, val2_t>,
+																		 std::is_assignable<val_t&, val2_t> >::value,
+															 self_t&>::type
 		{
 			if (m_has_value)
 			{
@@ -186,41 +179,13 @@ namespace utils
 
 		explicit operator bool() const noexcept { return m_has_value; }
 
-		auto value() & -> val_t&
-		{
-			if (!m_has_value)
-			{
-				throw bad_optional_access();
-			}
-			return m_storage.m_value;
-		}
+		auto value() & -> val_t& { return m_storage.m_value; }
 
-		auto value() const& -> const val_t&
-		{
-			if (!m_has_value)
-			{
-				throw bad_optional_access();
-			}
-			return m_storage.m_value;
-		}
+		auto value() const& -> const val_t& { return m_storage.m_value; }
 
-		auto value() && -> val_t&&
-		{
-			if (!m_has_value)
-			{
-				throw bad_optional_access();
-			}
-			return std::move(m_storage.m_value);
-		}
+		auto value() && -> val_t&& { return std::move(m_storage.m_value); }
 
-		auto value() const&& -> const val_t&&
-		{
-			if (!m_has_value)
-			{
-				throw bad_optional_access();
-			}
-			return std::move(m_storage.m_value);
-		}
+		auto value() const&& -> const val_t&& { return std::move(m_storage.m_value); }
 
 		auto operator*() & noexcept -> val_t& { return m_storage.m_value; }
 
@@ -278,7 +243,8 @@ namespace utils
 			}
 		}
 
-		auto swap(self_t& p_other) noexcept(is_nothrow_move_constructible<val_t>::value && noexcept(std::swap(std::declval<val_t&>(), std::declval<val_t&>()))) -> void
+		auto swap(self_t& p_other) noexcept(is_nothrow_move_constructible<val_t>::value
+											&& noexcept(std::swap(std::declval<val_t&>(), std::declval<val_t&>()))) -> void
 		{
 			if (m_has_value && p_other.m_has_value)
 			{
@@ -500,7 +466,8 @@ namespace utils
 		return optional<val_t>(in_place, std::forward<args_t>(p_args)...);
 	}
 
-	template <typename val_t, typename init_t, typename... args_t> auto make_optional(std::initializer_list<init_t> p_il, args_t&&... p_args) -> optional<val_t>
+	template <typename val_t, typename init_t, typename... args_t>
+	auto make_optional(std::initializer_list<init_t> p_il, args_t&&... p_args) -> optional<val_t>
 	{
 		return optional<val_t>(in_place, p_il, std::forward<args_t>(p_args)...);
 	}

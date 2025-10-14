@@ -539,15 +539,9 @@ namespace utils
 
 		explicit operator bool() const noexcept { return m_has_value; }
 
-		auto value() const -> void
-		{
-			if (!m_has_value)
-			{
-				throw bad_expected_access<err_t>(m_storage.m_error);
-			}
-		}
+		auto value() const noexcept -> void {}
 
-		auto operator*() const noexcept -> void { return; }
+		auto operator*() const noexcept -> void {}
 
 		auto error() & noexcept -> err_t& { return m_storage.m_error; }
 
