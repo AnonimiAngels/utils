@@ -101,30 +101,30 @@ namespace utils
 		 * @brief Get logger instance
 		 * @return Shared pointer to spdlog logger
 		 */
-		auto operator()() -> std::shared_ptr<spdlog::logger> { return m_logger; }
+		auto operator()() noexcept -> std::shared_ptr<spdlog::logger> { return m_logger; }
 
 		/**
 		 * @brief Arrow operator for accessing logger
 		 * @return Shared pointer to spdlog logger
 		 */
-		auto operator->() -> std::shared_ptr<spdlog::logger> { return m_logger; }
+		auto operator->() noexcept -> std::shared_ptr<spdlog::logger> { return m_logger; }
 
 		/**
 		 * @brief Enable logging
 		 */
-		auto enable() -> void { m_enabled = true; }
+		auto enable() noexcept -> void { m_enabled = true; }
 
 		/**
 		 * @brief Disable logging
 		 */
-		auto disable() -> void { m_enabled = false; }
+		auto disable() noexcept -> void { m_enabled = false; }
 
 		/**
 		 * @brief Log trace level message
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto trace(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto trace(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -138,7 +138,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto debug(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto debug(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -152,7 +152,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto info(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto info(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -166,7 +166,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto warn(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto warn(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -180,7 +180,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto error(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto error(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -194,7 +194,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto critical(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) -> void
+		template <typename... args_t> auto critical(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
 		{
 			if (!m_enabled)
 			{

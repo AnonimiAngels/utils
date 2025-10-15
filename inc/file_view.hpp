@@ -77,7 +77,7 @@ namespace utils
 		using self_t = file_view;
 
 	private:
-		utils::fs::path m_path;
+		fs::path m_path;
 
 		std::int32_t m_file_descriptor = -1;
 		void* m_map					   = MAP_FAILED;
@@ -89,7 +89,7 @@ namespace utils
 		~file_view() { close_descriptor(); }
 
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-		explicit file_view(utils::fs::path p_path)
+		explicit file_view(fs::path p_path)
 			: m_path(std::move(p_path)),
 			  m_file_descriptor(::open(m_path.c_str(), O_RDONLY | O_CLOEXEC)),
 			  m_page_size(static_cast<std::uintmax_t>(::sysconf(_SC_PAGESIZE)))
@@ -100,7 +100,7 @@ namespace utils
 				throw std::runtime_error(std::format("Failed to open file '{}': {}", m_path.string(), ::strerror(errno)));
 			}
 
-			struct stat file_stat;
+			struct stat file_stat = {};
 			std::memset(&file_stat, 0, sizeof(file_stat));
 
 			if (::fstat(m_file_descriptor, &file_stat) < 0)
