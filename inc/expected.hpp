@@ -2,10 +2,7 @@
 #define EXPECTED_HPP
 
 #include <cstdint>
-#include <cstring>
-#include <exception>
 #include <initializer_list>
-#include <new>
 #include <type_traits>
 #include <utility>
 

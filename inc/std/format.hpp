@@ -2,6 +2,8 @@
 #ifndef FORMAT_HPP
 	#define FORMAT_HPP
 
+// IWYU pragma: begin_exports
+
 	#include "utils_macros.hpp"
 
 	#if defined(__has_include)
@@ -82,5 +84,7 @@ namespace std
 	#endif
 
 	#define HAS_PRINT_SUPPORT (HAS_STD_PRINT || HAS_FMT_FORMAT)
+
+// IWYU pragma: end_exports
 
 #endif	  // FORMAT_HPP
