@@ -124,7 +124,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto trace(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto trace(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -138,7 +138,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto debug(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto debug(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -152,7 +152,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto info(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto info(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -166,7 +166,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto warn(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto warn(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -180,7 +180,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto error(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto error(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
@@ -194,7 +194,7 @@ namespace utils
 		 * @param p_fmt Format string
 		 * @param p_args Arguments for format string
 		 */
-		template <typename... args_t> auto critical(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) noexcept -> void
+		template <typename... args_t> auto critical(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
 			{
