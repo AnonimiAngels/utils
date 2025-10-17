@@ -428,7 +428,7 @@ namespace std
 		static_assert(index_t < sizeof...(types_t), "index out of bounds");
 		if (p_v.m_index != index_t)
 		{
-			throw bad_variant_access("variant does not hold alternative at index");
+			MACRO_THROW(bad_variant_access("variant does not hold alternative at index"));
 		}
 		using type_t = typename detail::at_index<index_t, types_t...>::type;
 		return *reinterpret_cast<type_t*>(&p_v.m_storage);
@@ -440,7 +440,7 @@ namespace std
 		static_assert(index_t < sizeof...(types_t), "index out of bounds");
 		if (p_v.m_index != index_t)
 		{
-			throw bad_variant_access("variant does not hold alternative at index");
+			MACRO_THROW(bad_variant_access("variant does not hold alternative at index"));
 		}
 		using type_t = typename detail::at_index<index_t, types_t...>::type;
 		return *reinterpret_cast<const type_t*>(&p_v.m_storage);
@@ -451,7 +451,7 @@ namespace std
 		static_assert(index_t < sizeof...(types_t), "index out of bounds");
 		if (p_v.m_index != index_t)
 		{
-			throw bad_variant_access("variant does not hold alternative at index");
+			MACRO_THROW(bad_variant_access("variant does not hold alternative at index"));
 		}
 		using type_t = typename detail::at_index<index_t, types_t...>::type;
 		return std::move(*reinterpret_cast<type_t*>(&p_v.m_storage));
@@ -597,7 +597,7 @@ namespace std
 				typename std::enable_if<index_t >= variant_size<typename std::decay<variant_t>::type>::value,
 										decltype(p_visitor(get<0>(std::forward<variant_t>(p_variant))))>::type
 			{
-				throw bad_variant_access("variant in invalid state");
+				MACRO_THROW(bad_variant_access("variant in invalid state"));
 			}
 
 			template <std::size_t index_t = 0>

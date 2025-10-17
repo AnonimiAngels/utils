@@ -52,4 +52,19 @@
 		#define MACRO_CONSTEXPR_FUNC inline
 	#endif
 
+	// MACRO_EXCEPTIONS_ENABLED
+	#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+		#define MACRO_EXCEPTIONS_ENABLED 1
+	#else
+		#define MACRO_EXCEPTIONS_ENABLED 0
+	#endif
+
+	// MACRO_THROW
+	#if MACRO_EXCEPTIONS_ENABLED
+		#define MACRO_THROW(exception) throw exception
+	#else
+		#include <cstdlib>
+		#define MACRO_THROW(exception) std::terminate()
+	#endif
+
 #endif	  // UTILS_MACROS_HPP
