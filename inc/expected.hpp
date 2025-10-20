@@ -121,19 +121,29 @@ namespace utils
 			}
 		}
 
-		expected() : m_has_value(true) { new (&m_storage.m_value) val_t(); }
+		template <typename val2_t = val_t>
+		expected(typename enable_if<is_default_constructible<val2_t>::value, std::int32_t>::type /*unused*/ = 0) : m_has_value(true)
+		{
+			new (&m_storage.m_value) val_t();
+		}
 
-		expected(const val_t& p_val) : m_has_value(true) { new (&m_storage.m_value) val_t(p_val); }
+		template <typename val2_t = val_t>
+		expected(const val_t& p_val, typename enable_if<is_copy_constructible<val2_t>::value, std::int32_t>::type /*unused*/ = 0) : m_has_value(true)
+		{
+			new (&m_storage.m_value) val_t(p_val);
+		}
 
 		expected(val_t&& p_val) : m_has_value(true) { new (&m_storage.m_value) val_t(std::move(p_val)); }
 
-		template <typename... args_t> explicit expected(in_place_t, args_t&&... p_args) : m_has_value(true)
+		expected(err_t&& p_err) : m_has_value(false) { new (&m_storage.m_error) err_t(std::move(p_err)); }
+
+		template <typename... args_t> explicit expected(in_place_t /*unused*/, args_t&&... p_args) : m_has_value(true)
 		{
 			new (&m_storage.m_value) val_t(std::forward<args_t>(p_args)...);
 		}
 
 		template <typename init_t, typename... args_t>
-		explicit expected(in_place_t, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
+		explicit expected(in_place_t /*unused*/, std::initializer_list<init_t> p_il, args_t&&... p_args) : m_has_value(true)
 		{
 			new (&m_storage.m_value) val_t(p_il, std::forward<args_t>(p_args)...);
 		}
@@ -142,7 +152,7 @@ namespace utils
 
 		expected(unexpected_type&& p_unex) : m_has_value(false) { new (&m_storage.m_error) err_t(std::move(p_unex.error())); }
 
-		template <typename... args_t> explicit expected(unexpect_t, args_t&&... p_args) : m_has_value(false)
+		template <typename... args_t> explicit expected(unexpect_t /*unused*/, args_t&&... p_args) : m_has_value(false)
 		{
 			new (&m_storage.m_error) err_t(std::forward<args_t>(p_args)...);
 		}
@@ -153,7 +163,10 @@ namespace utils
 			new (&m_storage.m_error) err_t(p_il, std::forward<args_t>(p_args)...);
 		}
 
-		expected(const self_t& p_other) : m_has_value(p_other.m_has_value)
+		template <typename val2_t = val_t, typename err2_t = err_t>
+		expected(const self_t& p_other,
+				 typename enable_if<conjunction<is_copy_constructible<val2_t>, is_copy_constructible<err2_t> >::value, std::int32_t>::type = 0)
+			: m_has_value(p_other.m_has_value)
 		{
 			if (m_has_value)
 			{
@@ -165,7 +178,10 @@ namespace utils
 			}
 		}
 
-		auto operator=(const self_t& p_other) -> self_t&
+		template <typename val2_t = val_t, typename err2_t = err_t>
+		auto operator=(const self_t& p_other) -> typename enable_if<
+			conjunction<is_copy_constructible<val2_t>, is_copy_assignable<val2_t>, is_copy_constructible<err2_t>, is_copy_assignable<err2_t> >::value,
+			expected<val_t, err_t>&>::type
 		{
 			if (this != &p_other)
 			{

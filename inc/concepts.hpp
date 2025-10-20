@@ -5,6 +5,11 @@
 
 namespace utils
 {
+	template <typename type_t> struct is_default_constructible
+	{
+		static constexpr bool value = std::is_default_constructible<type_t>::value;
+	};
+
 	template <typename type_t> struct is_copy_constructible
 	{
 		static constexpr bool value = std::is_copy_constructible<type_t>::value;
@@ -18,6 +23,16 @@ namespace utils
 	template <typename type_t> struct is_nothrow_move_constructible
 	{
 		static constexpr bool value = std::is_nothrow_move_constructible<type_t>::value;
+	};
+
+	template <typename type_t> struct is_copy_assignable
+	{
+		static constexpr bool value = std::is_copy_assignable<type_t>::value;
+	};
+
+	template <typename type_t> struct is_move_assignable
+	{
+		static constexpr bool value = std::is_move_assignable<type_t>::value;
 	};
 
 	template <typename type_t> struct is_destructible
