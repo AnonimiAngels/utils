@@ -35,6 +35,7 @@
 	#include <spdlog/logger.h>
 	#include <spdlog/sinks/basic_file_sink.h>
 	#include <spdlog/sinks/stdout_color_sinks.h>
+	#include <spdlog/spdlog.h>
 
 	#include "cmemory.hpp"
 	#include "std/string_view.hpp"
@@ -202,6 +203,8 @@ namespace utils
 			}
 			m_logger->critical(p_fmt, std::forward<args_t>(p_args)...);
 		}
+
+		static auto set_global_level(spdlog::level::level_enum p_level) -> void { spdlog::set_level(p_level); }
 
 	private:
 		/**
