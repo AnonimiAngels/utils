@@ -13,6 +13,7 @@
 
 	#include "filesystem.hpp"
 	#include "format.hpp"
+	#include "utils_macros.hpp"
 
 namespace utils
 {
@@ -97,7 +98,7 @@ namespace utils
 
 			if (m_file_descriptor < 0)
 			{
-				throw std::runtime_error(std::format("Failed to open file '{}': {}", m_path.string(), ::strerror(errno)));
+				MACRO_THROW(std::runtime_error(std::format("Failed to open file '{}': {}", m_path.string(), ::strerror(errno))));
 			}
 
 			struct stat file_stat = {};
@@ -106,7 +107,7 @@ namespace utils
 			if (::fstat(m_file_descriptor, &file_stat) < 0)
 			{
 				close_descriptor();
-				throw std::runtime_error(std::format("Failed to get file status for '{}': {}", m_path.string(), ::strerror(errno)));
+				MACRO_THROW(std::runtime_error(std::format("Failed to get file status for '{}': {}", m_path.string(), ::strerror(errno))));
 			}
 
 			m_file_size = static_cast<std::size_t>(file_stat.st_size);
@@ -146,7 +147,7 @@ namespace utils
 			if (m_map == MAP_FAILED)
 			{
 				close_descriptor();
-				throw std::runtime_error(std::format("Failed to map file '{}' into memory: {}", m_path.string(), ::strerror(errno)));
+				MACRO_THROW(std::runtime_error(std::format("Failed to map file '{}' into memory: {}", m_path.string(), ::strerror(errno))));
 			}
 
 			apply_memory_advice();
@@ -228,7 +229,7 @@ namespace utils
 
 				if (::madvise(m_map, static_cast<std::size_t>(file_len), p_advice) < 0)
 				{
-					throw std::runtime_error(std::format("Failed to apply memory advice: {} for file size: {}", ::strerror(errno), m_file_size));
+					MACRO_THROW(std::runtime_error(std::format("Failed to apply memory advice: {} for file size: {}", ::strerror(errno), m_file_size)));
 				}
 			}
 		}
@@ -239,7 +240,7 @@ namespace utils
 			{
 				if (::posix_fadvise(m_file_descriptor, 0, static_cast<off_t>(m_file_size), p_advice) > 0)
 				{
-					throw std::runtime_error(std::format("Failed to apply POSIX advice: {} for file size: {}", ::strerror(errno), m_file_size));
+					MACRO_THROW(std::runtime_error(std::format("Failed to apply POSIX advice: {} for file size: {}", ::strerror(errno), m_file_size)));
 				}
 			}
 		}
