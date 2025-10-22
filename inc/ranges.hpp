@@ -1725,18 +1725,10 @@ namespace ranges
 		return ranges::for_each(std::begin(p_range), std::end(p_range), p_func);
 	}
 
-	template <typename input_iter, typename output_iter, typename func_t>
-	inline auto transform(input_iter p_first, input_iter p_last, output_iter p_result, func_t p_func) -> output_iter
-	{
-		for (; p_first != p_last; ++p_first, ++p_result)
-			*p_result = p_func(*p_first);
-		return p_result;
-	}
-
 	template <typename range_t, typename output_iter, typename func_t, typename = typename std::enable_if<is_range<range_t>::value>::type>
 	inline auto transform(range_t&& p_range, output_iter p_result, func_t p_func) -> output_iter
 	{
-		return ranges::transform(std::begin(p_range), std::end(p_range), p_result, p_func);
+		return std::transform(std::begin(p_range), std::end(p_range), p_result, p_func);
 	}
 
 	template <typename input_iter, typename type_t> inline auto find(input_iter p_first, input_iter p_last, const type_t& p_value) -> input_iter
