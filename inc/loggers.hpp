@@ -120,6 +120,8 @@ namespace utils
 		 */
 		auto disable() noexcept -> void { m_enabled = false; }
 
+		auto set_level(spdlog::level::level_enum p_level) noexcept -> void { m_logger->set_level(p_level); }
+
 		/**
 		 * @brief Log trace level message
 		 * @param p_fmt Format string
