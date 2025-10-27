@@ -181,7 +181,7 @@ namespace utils
 
 		auto logger_sync() -> void
 		{
-			m_logger->set_pattern("[%t]\t[%Y-%m-%d %H:%M:%S.%e]\t[%^%=8l%$]\t[%=16n]\t%v");
+			m_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%t] [%^%=8l%$] [%=16n] %v");
 			m_logger->set_level(spdlog::level::trace);
 			m_logger->flush_on(spdlog::level::info);
 			m_enabled = true;
