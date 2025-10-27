@@ -6,8 +6,6 @@
  * @file loggers.hpp
  * @author anonimi_angels (gutsulyak.vladyslav2000@gmail.com)
  * @brief Logger utility class using spdlog
- * @version 0.1
- * @date 2024-11-13
  *
  * @copyright
  *The MIT License (MIT)
@@ -37,8 +35,8 @@
 	#include <spdlog/sinks/stdout_color_sinks.h>
 	#include <spdlog/spdlog.h>
 
-	#include "cmemory.hpp"
-	#include "std/string_view.hpp"
+	#include "cmemory.hpp"			  // IWYU pragma: keep
+	#include "std/string_view.hpp"	  // IWYU pragma: keep
 
 	#define UNIQUE_PTR_LOGGER std::unique_ptr<utils::logger>
 	#define A_MAKE_UNIQUE_LOGGER std::unique_ptr<utils::logger>(new utils::logger(__FUNCTION__))
@@ -46,9 +44,6 @@
 
 namespace utils
 {
-	/**
-	 * @brief Logger class that uses spdlog for logging functionality
-	 */
 	class logger
 	{
 	public:
@@ -62,25 +57,15 @@ namespace utils
 		bool m_enabled = true;
 
 	public:
-		/**
-		 * @brief Construct logger with entity name only
-		 * @param p_entity Logger entity name
-		 */
 		logger(std::string_view p_entity)
 			: m_console_sink(std::make_shared<spdlog::sinks::stdout_color_sink_mt>()),
 			  m_file_sink(nullptr),
-			  m_logger(std::make_shared<spdlog::logger>(p_entity.cbegin(), m_console_sink))
+			  m_logger(std::make_shared<spdlog::logger>(to_lower(p_entity).data(), m_console_sink))
 		{
 			console_sync();
 			logger_sync();
 		}
 
-		/**
-		 * @brief Construct logger with entity name and log file
-		 * @param p_entity Logger entity name
-		 * @param p_log_file Log file path
-		 * @param p_console_sink Enable console sink flag
-		 */
 		logger(std::string_view p_entity, std::string_view p_log_file, bool p_console_sink = false)
 			: m_console_sink(p_console_sink ? std::make_shared<spdlog::sinks::stdout_color_sink_mt>() : nullptr),
 			  m_file_sink(std::make_shared<spdlog::sinks::basic_file_sink_mt>(p_log_file.cbegin(), true)),
@@ -88,45 +73,26 @@ namespace utils
 		{
 			if (p_console_sink)
 			{
-				m_logger = std::make_shared<spdlog::logger>(p_entity.cbegin(), spdlog::sinks_init_list{m_console_sink, m_file_sink});
+				m_logger = std::make_shared<spdlog::logger>(to_lower(p_entity).data(), spdlog::sinks_init_list{m_console_sink, m_file_sink});
 				console_sync();
 			}
 			else
 			{
-				m_logger = std::make_shared<spdlog::logger>(p_entity.cbegin(), m_file_sink);
+				m_logger = std::make_shared<spdlog::logger>(to_lower(p_entity).data(), m_file_sink);
 			}
 			logger_sync();
 		}
 
-		/**
-		 * @brief Get logger instance
-		 * @return Shared pointer to spdlog logger
-		 */
 		auto operator()() noexcept -> std::shared_ptr<spdlog::logger> { return m_logger; }
 
-		/**
-		 * @brief Arrow operator for accessing logger
-		 * @return Shared pointer to spdlog logger
-		 */
 		auto operator->() noexcept -> std::shared_ptr<spdlog::logger> { return m_logger; }
 
-		/**
-		 * @brief Enable logging
-		 */
 		auto enable() noexcept -> void { m_enabled = true; }
 
-		/**
-		 * @brief Disable logging
-		 */
 		auto disable() noexcept -> void { m_enabled = false; }
 
 		auto set_level(spdlog::level::level_enum p_level) noexcept -> void { m_logger->set_level(p_level); }
 
-		/**
-		 * @brief Log trace level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto trace(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -136,11 +102,6 @@ namespace utils
 			m_logger->trace(p_fmt, std::forward<args_t>(p_args)...);
 		}
 
-		/**
-		 * @brief Log debug level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto debug(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -150,11 +111,6 @@ namespace utils
 			m_logger->debug(p_fmt, std::forward<args_t>(p_args)...);
 		}
 
-		/**
-		 * @brief Log info level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto info(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -164,11 +120,6 @@ namespace utils
 			m_logger->info(p_fmt, std::forward<args_t>(p_args)...);
 		}
 
-		/**
-		 * @brief Log warning level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto warn(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -178,11 +129,6 @@ namespace utils
 			m_logger->warn(p_fmt, std::forward<args_t>(p_args)...);
 		}
 
-		/**
-		 * @brief Log error level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto error(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -192,11 +138,6 @@ namespace utils
 			m_logger->error(p_fmt, std::forward<args_t>(p_args)...);
 		}
 
-		/**
-		 * @brief Log critical level message
-		 * @param p_fmt Format string
-		 * @param p_args Arguments for format string
-		 */
 		template <typename... args_t> auto critical(fmt_str_t<args_t...> p_fmt, args_t&&... p_args) const noexcept -> void
 		{
 			if (!m_enabled)
@@ -209,9 +150,16 @@ namespace utils
 		static auto set_global_level(spdlog::level::level_enum p_level) -> void { spdlog::set_level(p_level); }
 
 	private:
-		/**
-		 * @brief Configure console sink colors
-		 */
+		static auto to_lower(std::string_view p_str) -> std::string
+		{
+			std::string result(p_str);
+			for (auto& letter : result)
+			{
+				letter = static_cast<char>(std::tolower(static_cast<unsigned char>(letter)));
+			}
+			return result;
+		}
+
 		auto console_sync() -> void
 		{
 			const char* white		= "\033[0m";
@@ -231,12 +179,9 @@ namespace utils
 			m_console_sink->set_color(spdlog::level::off, white);
 		}
 
-		/**
-		 * @brief Configure logger pattern
-		 */
 		auto logger_sync() -> void
 		{
-			m_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] [%t] %v");
+			m_logger->set_pattern("[%t]\t[%Y-%m-%d %H:%M:%S.%e]\t[%^%=8l%$]\t[%=16n]\t%v");
 			m_logger->set_level(spdlog::level::trace);
 			m_logger->flush_on(spdlog::level::info);
 			m_enabled = true;
