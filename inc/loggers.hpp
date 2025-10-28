@@ -54,7 +54,7 @@ namespace utils
 		std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> m_console_sink;
 		std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_file_sink;
 		std::shared_ptr<spdlog::logger> m_logger;
-		bool m_enabled = true;
+		mutable bool m_enabled = true;
 
 	public:
 		logger(std::string_view p_entity)
@@ -87,9 +87,9 @@ namespace utils
 
 		auto operator->() noexcept -> std::shared_ptr<spdlog::logger> { return m_logger; }
 
-		auto enable() noexcept -> void { m_enabled = true; }
+		auto enable() const noexcept -> void { m_enabled = true; }
 
-		auto disable() noexcept -> void { m_enabled = false; }
+		auto disable() const noexcept -> void { m_enabled = false; }
 
 		auto set_level(spdlog::level::level_enum p_level) noexcept -> void { m_logger->set_level(p_level); }
 
