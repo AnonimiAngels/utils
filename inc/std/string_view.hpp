@@ -125,9 +125,9 @@ template <> struct formatter<std::string_view>
 {
 	static constexpr auto parse(format_parse_context& p_ctx) -> decltype(p_ctx.begin()) { return p_ctx.begin(); }
 
-	template <typename format_context> auto format(const std::string_view& p_var, format_context& p_ctx) -> decltype(p_ctx.out())
+	template <typename format_context> auto format(const std::string_view& p_var, format_context& p_ctx) const -> decltype(p_ctx.out())
 	{
-		return std::format_to(p_ctx.out(), "{}", p_var.cbegin());
+		return std::copy(p_var.begin(), p_var.end(), p_ctx.out());
 	}
 };
 
