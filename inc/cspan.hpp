@@ -180,7 +180,7 @@ namespace utils
 		}
 
 		template <typename container_t>
-		cspan(container_t& p_container,
+		constexpr cspan(container_t& p_container,
 			  typename std::enable_if<detail::is_container_compatible<container_t, element_t>::value>::type* /*p_unused*/
 			  = nullptr) noexcept
 			: m_data(p_container.data()), m_size(p_container.size())
@@ -291,7 +291,7 @@ namespace utils
 			return m_data[p_index];
 		}
 
-		CSPAN_NODISCARD auto at(size_type p_index) const -> const_reference
+		CSPAN_NODISCARD constexpr auto at(size_type p_index) const -> const_reference
 		{
 			if (p_index >= m_size)
 			{
@@ -326,7 +326,7 @@ namespace utils
 
 		CSPAN_NODISCARD constexpr auto empty() const noexcept -> bool { return m_size == 0; }
 
-		template <size_type count_v = dynamic_extent> CSPAN_NODISCARD auto subspan(size_type p_offset, size_type p_count) const noexcept -> cspan<element_type, count_v>
+		template <size_type count_v = dynamic_extent> CSPAN_NODISCARD constexpr auto subspan(size_type p_offset, size_type p_count) const noexcept -> cspan<element_type, count_v>
 		{
 			assert(extent == dynamic_extent || (p_offset + p_count <= extent));
 			assert(p_offset <= m_size);
@@ -334,7 +334,7 @@ namespace utils
 			return cspan<element_t, count_v>(m_data + p_offset, p_count);
 		}
 
-		template <size_type count_v> CSPAN_NODISCARD auto subspan(size_type p_offset) const noexcept -> cspan<element_type, count_v>
+		template <size_type count_v> CSPAN_NODISCARD constexpr auto subspan(size_type p_offset) const noexcept -> cspan<element_type, count_v>
 		{
 			constexpr size_type actual_count = (count_v == dynamic_extent) ? dynamic_extent : count_v;
 			assert(p_offset <= m_size);

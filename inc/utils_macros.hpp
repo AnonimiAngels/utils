@@ -45,6 +45,13 @@
 		#endif
 	#endif
 
+	// MACRO_REQUIRE_CONSTRAINTS
+	#if MACRO_CXX20_ENABLED
+		#define MACRO_REQUIRE_CONSTRAINTS require
+	#else
+		#define MACRO_REQUIRE_CONSTRAINTS
+	#endif
+
 	// MACRO_CONSTEXPR_FUNC
 	#if MACRO_CXX14_ENABLED
 		#define MACRO_CONSTEXPR_FUNC constexpr
