@@ -68,10 +68,35 @@
 
 	// MACRO_THROW
 	#if MACRO_EXCEPTIONS_ENABLED
-		#define MACRO_THROW(exception) throw exception
+		#define MACRO_GET_3RD_ARG(arg1, arg2, arg3, ...) arg3
+		#define MACRO_THROW_CHOOSER(...) MACRO_GET_3RD_ARG(__VA_ARGS__, MACRO_THROW_2, MACRO_THROW_1)
+
+		#define MACRO_THROW_1(exception) throw exception
+		#define MACRO_THROW_2(exception, error) throw exception(error)
+
+		#define MACRO_THROW(...) MACRO_THROW_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 	#else
+		#include <cstdio>
 		#include <cstdlib>
-		#define MACRO_THROW(exception) std::terminate()
+
+		#define MACRO_GET_3RD_ARG(arg1, arg2, arg3, ...) arg3
+		#define MACRO_THROW_CHOOSER(...) MACRO_GET_3RD_ARG(__VA_ARGS__, MACRO_THROW_2, MACRO_THROW_1)
+
+		#define MACRO_THROW_1(exception)                                                                                                             \
+			do                                                                                                                                       \
+			{                                                                                                                                        \
+				std::printf("Fatal error\n");                                                                                                        \
+				std::abort();                                                                                                                        \
+			} while (0)
+
+		#define MACRO_THROW_2(exception, error)                                                                                                      \
+			do                                                                                                                                       \
+			{                                                                                                                                        \
+				std::printf("Fatal error: %s\n", error.c_str());                                                                                     \
+				std::abort();                                                                                                                        \
+			} while (0)
+
+		#define MACRO_THROW(...) MACRO_THROW_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 	#endif
 
 #endif	  // UTILS_MACROS_HPP

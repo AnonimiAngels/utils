@@ -187,7 +187,7 @@ namespace utils
 			if (m_map == MAP_FAILED)
 			{
 				close_descriptor();
-				MACRO_THROW(std::runtime_error(std::format("Failed to map file '{}' into memory: {}", m_path.string(), ::strerror(errno))));
+				MACRO_THROW(std::runtime_error, std::format("Failed to map file '{}' into memory: {}", m_path.string(), ::strerror(errno)));
 			}
 
 			apply_memory_advice();
