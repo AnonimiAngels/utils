@@ -151,7 +151,10 @@ namespace utils
 
 			m_file_size = static_cast<std::size_t>(file_stat.st_size);
 
-			// Optimize kernel read-ahead based on file size
+			if (m_file_size == 0)
+			{
+				return;
+			}
 			if (m_file_size <= mem_size::medium)
 			{
 				file_posix_advise(POSIX_FADV_SEQUENTIAL);
@@ -326,7 +329,7 @@ namespace utils
 
 		MACRO_NODISCARD auto size() const noexcept -> std::uintmax_t { return m_file_size; }
 
-		MACRO_NODISCARD auto is_open() const noexcept -> bool { return m_file_descriptor >= 0 && is_mapped(); }
+		MACRO_NODISCARD auto is_open() const noexcept -> bool { return m_file_descriptor >= 0; }
 
 		MACRO_NODISCARD auto begin() const noexcept -> const std::uint8_t* { return data(); }
 
@@ -346,9 +349,31 @@ namespace utils
 				MACRO_THROW(std::runtime_error(std::format("File '{}' was not opened in write mode", m_path.string())));
 			}
 
-			auto* dest			   = static_cast<std::uint8_t*>(m_map);
-			auto src_begin		   = p_range.begin();
-			const auto src_end	   = p_range.end();
+			auto src_begin = p_range.begin();
+			const auto src_end = p_range.end();
+			const std::uintmax_t write_size = std::distance(src_begin, src_end);
+
+			if (m_file_size == 0 || write_size > m_file_size)
+			{
+				unmap();
+
+				if (::ftruncate(m_file_descriptor, static_cast<off_t>(write_size)) < 0)
+				{
+					MACRO_THROW(std::runtime_error(std::format("Failed to resize file '{}': {}", m_path.string(), ::strerror(errno))));
+				}
+
+				m_file_size = write_size;
+
+				const std::int32_t prot = PROT_READ | PROT_WRITE;
+				m_map = ::mmap(nullptr, static_cast<std::size_t>(m_file_size), prot, MAP_SHARED, m_file_descriptor, 0);
+
+				if (m_map == MAP_FAILED)
+				{
+					MACRO_THROW(std::runtime_error(std::format("Failed to remap file '{}': {}", m_path.string(), ::strerror(errno))));
+				}
+			}
+
+			auto* dest = static_cast<std::uint8_t*>(m_map);
 			std::uintmax_t written = 0;
 
 			while (src_begin != src_end && written < m_file_size)
