@@ -11,6 +11,7 @@
 	#include <sys/sysinfo.h>
 	#include <unistd.h>
 
+	#include "concepts.hpp"
 	#include "filesystem.hpp"
 	#include "format.hpp"
 	#include "utils_macros.hpp"
@@ -49,12 +50,30 @@ namespace utils
 		return (static_cast<std::uint8_t>(p_lhs) & static_cast<std::uint8_t>(p_rhs)) != 0;
 	}
 
-	enum class seek_dir : std::int32_t
+	enum class seek_dir : std::int8_t
 	{
 		begin	= SEEK_SET,
 		current = SEEK_CUR,
 		end		= SEEK_END
 	};
+
+	enum class open_mode : std::uint8_t
+	{
+		read	 = 0x01,
+		write	 = 0x02,
+		truncate = 0x04,
+		create	 = 0x08
+	};
+
+	inline auto operator|(open_mode p_lhs, open_mode p_rhs) -> open_mode
+	{
+		return static_cast<open_mode>(static_cast<std::uint8_t>(p_lhs) | static_cast<std::uint8_t>(p_rhs));
+	}
+
+	inline auto operator&(open_mode p_lhs, open_mode p_rhs) -> bool
+	{
+		return (static_cast<std::uint8_t>(p_lhs) & static_cast<std::uint8_t>(p_rhs)) != 0;
+	}
 
 	enum class file_error : std::uint8_t
 	{
@@ -85,16 +104,36 @@ namespace utils
 		std::uintmax_t m_file_size	   = 0;
 		std::uintmax_t m_page_size	   = 0;
 		std::uintmax_t m_prefetch_size = 0;
+		open_mode m_mode			   = open_mode::read;
 
 	public:
 		~file_view() { close_descriptor(); }
 
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-		explicit file_view(fs::path p_path)
-			: m_path(std::move(p_path)),
-			  m_file_descriptor(::open(m_path.c_str(), O_RDONLY | O_CLOEXEC)),
-			  m_page_size(static_cast<std::uintmax_t>(::sysconf(_SC_PAGESIZE)))
+		explicit file_view(fs::path p_path, open_mode p_mode = open_mode::read)
+			: m_path(std::move(p_path)), m_page_size(static_cast<std::uintmax_t>(::sysconf(_SC_PAGESIZE))), m_mode(p_mode)
 		{
+			std::int32_t flags = O_CLOEXEC;
+
+			if (m_mode & open_mode::write)
+			{
+				flags |= O_RDWR;
+				if (m_mode & open_mode::create)
+				{
+					flags |= O_CREAT;
+				}
+				if (m_mode & open_mode::truncate)
+				{
+					flags |= O_TRUNC;
+				}
+			}
+			else
+			{
+				flags |= O_RDONLY;
+			}
+
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+			m_file_descriptor = ::open(m_path.c_str(), flags, 0644);
 
 			if (m_file_descriptor < 0)
 			{
@@ -122,7 +161,7 @@ namespace utils
 				file_posix_advise(POSIX_FADV_WILLNEED);
 			}
 
-			std::int32_t mmap_flags = MAP_PRIVATE;
+			std::int32_t mmap_flags = (m_mode & open_mode::write) ? MAP_SHARED : MAP_PRIVATE;
 
 			if (m_file_size <= mem_size::tiny)
 			{
@@ -142,7 +181,8 @@ namespace utils
 				mmap_flags |= MAP_HUGETLB;
 			}
 
-			m_map = ::mmap(nullptr, static_cast<std::size_t>(m_file_size), PROT_READ, mmap_flags, m_file_descriptor, 0);
+			const std::int32_t prot = (m_mode & open_mode::write) ? (PROT_READ | PROT_WRITE) : PROT_READ;
+			m_map					= ::mmap(nullptr, static_cast<std::size_t>(m_file_size), prot, mmap_flags, m_file_descriptor, 0);
 
 			if (m_map == MAP_FAILED)
 			{
@@ -229,7 +269,8 @@ namespace utils
 
 				if (::madvise(m_map, static_cast<std::size_t>(file_len), p_advice) < 0)
 				{
-					MACRO_THROW(std::runtime_error(std::format("Failed to apply memory advice: {} for file size: {}", ::strerror(errno), m_file_size)));
+					MACRO_THROW(
+						std::runtime_error(std::format("Failed to apply memory advice: {} for file size: {}", ::strerror(errno), m_file_size)));
 				}
 			}
 		}
@@ -240,7 +281,8 @@ namespace utils
 			{
 				if (::posix_fadvise(m_file_descriptor, 0, static_cast<off_t>(m_file_size), p_advice) > 0)
 				{
-					MACRO_THROW(std::runtime_error(std::format("Failed to apply POSIX advice: {} for file size: {}", ::strerror(errno), m_file_size)));
+					MACRO_THROW(
+						std::runtime_error(std::format("Failed to apply POSIX advice: {} for file size: {}", ::strerror(errno), m_file_size)));
 				}
 			}
 		}
@@ -265,11 +307,11 @@ namespace utils
 			}
 		}
 
-		auto is_mapped() const noexcept -> bool { return m_map != MAP_FAILED; }
+		MACRO_NODISCARD auto is_mapped() const noexcept -> bool { return m_map != MAP_FAILED; }
 
 		static auto mem_available_bytes() -> std::uint64_t
 		{
-			struct sysinfo info;
+			struct sysinfo info{};
 			std::memset(&info, 0, sizeof(info));
 			if (::sysinfo(&info) != 0)
 			{
@@ -280,9 +322,59 @@ namespace utils
 		}
 
 	public:
-		auto data() const noexcept -> const std::uint8_t* { return static_cast<const std::uint8_t*>(m_map); }
+		MACRO_NODISCARD auto data() const noexcept -> const std::uint8_t* { return static_cast<const std::uint8_t*>(m_map); }
 
-		auto size() const noexcept -> std::uintmax_t { return m_file_size; }
+		MACRO_NODISCARD auto size() const noexcept -> std::uintmax_t { return m_file_size; }
+
+		MACRO_NODISCARD auto is_open() const noexcept -> bool { return m_file_descriptor >= 0 && is_mapped(); }
+
+		MACRO_NODISCARD auto begin() const noexcept -> const std::uint8_t* { return data(); }
+
+		MACRO_NODISCARD auto end() const noexcept -> const std::uint8_t* { return data() + size(); }
+
+		template <typename range_t> auto write(const range_t& p_range) -> enable_if_t<is_range<range_t>::value, void>
+		{
+			static_assert(is_range<range_t>::value, "Type must be a range with begin() and end()");
+
+			if (!is_open())
+			{
+				MACRO_THROW(std::runtime_error(std::format("File '{}' is not open for writing", m_path.string())));
+			}
+
+			if (!(m_mode & open_mode::write))
+			{
+				MACRO_THROW(std::runtime_error(std::format("File '{}' was not opened in write mode", m_path.string())));
+			}
+
+			auto* dest			   = static_cast<std::uint8_t*>(m_map);
+			auto src_begin		   = p_range.begin();
+			const auto src_end	   = p_range.end();
+			std::uintmax_t written = 0;
+
+			while (src_begin != src_end && written < m_file_size)
+			{
+				dest[written] = static_cast<std::uint8_t>(*src_begin);
+				++src_begin;
+				++written;
+			}
+		}
+
+		template <typename range_t> auto read(range_t& p_range) -> enable_if_t<is_range<range_t>::value, void>
+		{
+			static_assert(is_range<range_t>::value, "Type must be a range with begin() and end()");
+			static_assert(has_insert<range_t>::value, "Type must have insert()");
+
+			if (!is_open())
+			{
+				MACRO_THROW(std::runtime_error(std::format("File '{}' is not open for reading", m_path.string())));
+			}
+
+			const auto* src = static_cast<const std::uint8_t*>(m_map);
+			for (std::uintmax_t i = 0; i < m_file_size; ++i)
+			{
+				p_range.insert(p_range.end(), src[i]);
+			}
+		}
 	};
 }	 // namespace utils
 #endif	  // FILE_VIEW_HPP

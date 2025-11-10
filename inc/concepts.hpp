@@ -134,6 +134,19 @@ namespace utils
 		static constexpr bool value = decltype(check<iter_t>(0))::value;
 	};
 
+	template <typename range_t> class has_insert
+	{
+	private:
+		template <typename value_t>
+		static auto check(std::int32_t) -> decltype(std::declval<value_t&>().insert(std::declval<typename value_t::const_iterator>(),
+																					std::declval<typename value_t::value_type>()),
+													std::true_type{});
+		template <typename> static auto check(...) -> std::false_type;
+
+	public:
+		static constexpr bool value = decltype(check<range_t>(0))::value;
+	};
+
 }	 // namespace utils
 
 // NOLINTEND(modernize-type-traits)
