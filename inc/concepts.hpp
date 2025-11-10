@@ -1,7 +1,11 @@
 #ifndef CONCEPTS_HPP
 #define CONCEPTS_HPP
 
+#include <cstdint>
+#include <iterator>
 #include <type_traits>
+
+// NOLINTBEGIN(modernize-type-traits)
 
 namespace utils
 {
@@ -117,5 +121,21 @@ namespace utils
 												  negation<std::is_const<err_t> >,
 												  negation<std::is_volatile<err_t> > >::value;
 	};
+
+	template <typename iter_t> class is_range
+	{
+	private:
+		template <typename value_t>
+		static auto check(std::int32_t) -> decltype(std::begin(std::declval<value_t&>()), std::end(std::declval<value_t&>()), std::true_type{});
+
+		template <typename> static auto check(...) -> std::false_type;
+
+	public:
+		static constexpr bool value = decltype(check<iter_t>(0))::value;
+	};
+
 }	 // namespace utils
+
+// NOLINTEND(modernize-type-traits)
+
 #endif
