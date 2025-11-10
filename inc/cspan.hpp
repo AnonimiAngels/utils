@@ -10,16 +10,9 @@
 	#include <type_traits>
 
 	#include "claunder.hpp"
+	#include "utils_macros.hpp"
 
-	// nodiscard
-	#ifndef __has_cpp_attribute
-		#define __has_cpp_attribute(x) 0
-	#endif
-	#if __has_cpp_attribute(nodiscard) >= 201603L && __cplusplus >= 201703L
-		#define CSPAN_NODISCARD [[nodiscard]]
-	#else
-		#define CSPAN_NODISCARD
-	#endif
+// NOLINTBEGIN(modernize-type-traits, cppcoreguidelines-pro-bounds-pointer-arithmetic, modernize-avoid-c-arrays)
 
 namespace utils
 {
@@ -45,7 +38,8 @@ namespace utils
 		// container_t compatibility checking for non-const containers
 		template <typename container_t, typename element_t> struct is_container_compatible_impl
 		{
-			template <typename container> static auto test(int) -> decltype(std::declval<container&>().data(), std::declval<container&>().size(), std::true_type{});
+			template <typename container>
+			static auto test(int) -> decltype(std::declval<container&>().data(), std::declval<container&>().size(), std::true_type{});
 
 			template <typename container> static auto test(...) -> std::false_type;
 
@@ -57,20 +51,24 @@ namespace utils
 
 			template <typename container> struct check_convertible<container, true>
 			{
-				static constexpr bool value = std::is_convertible<typename std::remove_reference<decltype(*std::declval<container&>().data())>::type*, element_t*>::value;
+				static constexpr bool value =
+					std::is_convertible<typename std::remove_reference<decltype(*std::declval<container&>().data())>::type*, element_t*>::value;
 			};
 
-			static constexpr bool value = !std::is_array<container_t>::value && has_data_size::value && check_convertible<container_t, has_data_size::value>::value;
+			static constexpr bool value =
+				!std::is_array<container_t>::value && has_data_size::value && check_convertible<container_t, has_data_size::value>::value;
 		};
 
-		template <typename container_t, typename element_t> struct is_container_compatible : std::integral_constant<bool, is_container_compatible_impl<container_t, element_t>::value>
+		template <typename container_t, typename element_t>
+		struct is_container_compatible : std::integral_constant<bool, is_container_compatible_impl<container_t, element_t>::value>
 		{
 		};
 
 		// container_t compatibility checking for const containers
 		template <typename container_t, typename element_t> struct is_const_container_compatible_impl
 		{
-			template <typename container> static auto test(int) -> decltype(std::declval<const container&>().data(), std::declval<const container&>().size(), std::true_type{});
+			template <typename container>
+			static auto test(int) -> decltype(std::declval<const container&>().data(), std::declval<const container&>().size(), std::true_type{});
 
 			template <typename container> static auto test(...) -> std::false_type;
 
@@ -85,7 +83,8 @@ namespace utils
 				static constexpr bool value = std::is_convertible<decltype(std::declval<const container&>().data()), element_t*>::value;
 			};
 
-			static constexpr bool value = !std::is_array<container_t>::value && has_data_size::value && check_convertible<container_t, has_data_size::value>::value;
+			static constexpr bool value =
+				!std::is_array<container_t>::value && has_data_size::value && check_convertible<container_t, has_data_size::value>::value;
 		};
 
 		template <typename container_t, typename element_t>
@@ -127,7 +126,8 @@ namespace utils
 			static constexpr bool value = has_iterator_traits::value && check_convertible<iterator_t, has_iterator_traits::value>::value;
 		};
 
-		template <typename iterator_t, typename element_t> struct is_iterator_compatible : std::integral_constant<bool, is_iterator_compatible_impl<iterator_t, element_t>::value>
+		template <typename iterator_t, typename element_t>
+		struct is_iterator_compatible : std::integral_constant<bool, is_iterator_compatible_impl<iterator_t, element_t>::value>
 		{
 		};
 	}	 // namespace detail
@@ -173,7 +173,8 @@ namespace utils
 			assert(p_size != extent && "cspan size must not be dynamic_extent");
 		}
 
-		template <std::uintmax_t array_size, typename std::enable_if<detail::is_array_compatible<array_size, extent>::value, std::uintmax_t>::type = 0>
+		template <std::uintmax_t array_size,
+				  typename std::enable_if<detail::is_array_compatible<array_size, extent>::value, std::uintmax_t>::type = 0>
 		// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
 		constexpr cspan(element_t (&p_arr)[array_size]) noexcept : m_data(p_arr), m_size(array_size)
 		{
@@ -181,14 +182,16 @@ namespace utils
 
 		template <typename container_t>
 		constexpr cspan(container_t& p_container,
-			  typename std::enable_if<detail::is_container_compatible<container_t, element_t>::value>::type* /*p_unused*/
-			  = nullptr) noexcept
+						typename std::enable_if<detail::is_container_compatible<container_t, element_t>::value>::type* /*p_unused*/
+						= nullptr) noexcept
 			: m_data(p_container.data()), m_size(p_container.size())
 		{
 		}
 
 		template <typename container_t>
-		constexpr cspan(const container_t& p_container, typename std::enable_if<detail::is_const_container_compatible<container_t, element_t>::value>::type* /*p_unused*/ = nullptr) noexcept
+		constexpr cspan(
+			const container_t& p_container,
+			typename std::enable_if<detail::is_const_container_compatible<container_t, element_t>::value>::type* /*p_unused*/ = nullptr) noexcept
 			: m_data(p_container.data()), m_size(p_container.size())
 		{
 		}
@@ -219,16 +222,28 @@ namespace utils
 			assert(m_data != nullptr || m_size == 0 && "cspan data pointer must not be null unless size is zero");
 		}
 
-		template <class value_t, std::uintmax_t array_size> constexpr cspan(std::array<value_t, array_size>& p_array) noexcept : m_data(p_array.data()), m_size(p_array.size()) {}
+		template <class value_t, std::uintmax_t array_size>
+		constexpr cspan(std::array<value_t, array_size>& p_array) noexcept : m_data(p_array.data()), m_size(p_array.size())
+		{
+		}
 
-		template <class value_t, std::uintmax_t array_size> constexpr cspan(const std::array<value_t, array_size>& p_array) noexcept : m_data(p_array.data()), m_size(p_array.size()) {}
+		template <class value_t, std::uintmax_t array_size>
+		constexpr cspan(const std::array<value_t, array_size>& p_array) noexcept : m_data(p_array.data()), m_size(p_array.size())
+		{
+		}
 
 		cspan(const self_t& p_other) noexcept									  = default;
-		CSPAN_NODISCARD auto operator=(const self_t& p_other) noexcept -> self_t& = default;
+		MACRO_NODISCARD auto operator=(const self_t& p_other) noexcept -> self_t& = default;
 		cspan(self_t&& p_other) noexcept										  = default;
-		CSPAN_NODISCARD auto operator=(self_t&& p_other) noexcept -> self_t&	  = default;
+		MACRO_NODISCARD auto operator=(self_t&& p_other) noexcept -> self_t&	  = default;
 
-		CSPAN_NODISCARD auto operator==(const self_t& p_other) const noexcept -> bool
+		template <typename U = element_t>
+		constexpr cspan(const cspan<value_type, extent>& p_other, typename std::enable_if<std::is_const<U>::value, int>::type /*unused*/ = 0) noexcept
+			: m_data(p_other.data()), m_size(p_other.size())
+		{
+		}
+
+		MACRO_NODISCARD auto operator==(const self_t& p_other) const noexcept -> bool
 		{
 			if (m_size != p_other.m_size)
 			{
@@ -238,51 +253,51 @@ namespace utils
 			return std::equal(m_data, m_data + m_size, p_other.m_data);
 		}
 
-		CSPAN_NODISCARD auto operator!=(const self_t& p_other) const noexcept -> bool { return !(*this == p_other); }
+		MACRO_NODISCARD auto operator!=(const self_t& p_other) const noexcept -> bool { return !(*this == p_other); }
 
-		CSPAN_NODISCARD auto operator<(const self_t& p_other) const noexcept -> bool
+		MACRO_NODISCARD auto operator<(const self_t& p_other) const noexcept -> bool
 		{
 			return std::lexicographical_compare(m_data, m_data + m_size, p_other.m_data, p_other.m_data + p_other.m_size);
 		}
 
-		CSPAN_NODISCARD auto operator<=(const self_t& p_other) const noexcept -> bool { return !(*this > p_other); }
+		MACRO_NODISCARD auto operator<=(const self_t& p_other) const noexcept -> bool { return !(*this > p_other); }
 
-		CSPAN_NODISCARD auto operator>(const self_t& p_other) const noexcept -> bool
+		MACRO_NODISCARD auto operator>(const self_t& p_other) const noexcept -> bool
 		{
 			return std::lexicographical_compare(p_other.m_data, p_other.m_data + p_other.m_size, m_data, m_data + m_size);
 		}
 
-		CSPAN_NODISCARD auto operator>=(const self_t& p_other) const noexcept -> bool { return !(*this < p_other); }
+		MACRO_NODISCARD auto operator>=(const self_t& p_other) const noexcept -> bool { return !(*this < p_other); }
 
-		CSPAN_NODISCARD auto begin() noexcept -> iterator { return m_data; }
+		MACRO_NODISCARD auto begin() noexcept -> iterator { return m_data; }
 
-		CSPAN_NODISCARD auto begin() const noexcept -> const_iterator { return m_data; }
+		MACRO_NODISCARD auto begin() const noexcept -> const_iterator { return m_data; }
 
-		CSPAN_NODISCARD auto end() noexcept -> iterator { return m_data + m_size; }
+		MACRO_NODISCARD auto end() noexcept -> iterator { return m_data + m_size; }
 
-		CSPAN_NODISCARD auto end() const noexcept -> const_iterator { return m_data + m_size; }
+		MACRO_NODISCARD auto end() const noexcept -> const_iterator { return m_data + m_size; }
 
-		CSPAN_NODISCARD auto cbegin() const noexcept -> const_iterator { return m_data; }
+		MACRO_NODISCARD auto cbegin() const noexcept -> const_iterator { return m_data; }
 
-		CSPAN_NODISCARD auto cend() const noexcept -> const_iterator { return m_data + m_size; }
+		MACRO_NODISCARD auto cend() const noexcept -> const_iterator { return m_data + m_size; }
 
-		CSPAN_NODISCARD auto rbegin() noexcept -> reverse_iterator { return reverse_iterator(end()); }
+		MACRO_NODISCARD auto rbegin() noexcept -> reverse_iterator { return reverse_iterator(end()); }
 
-		CSPAN_NODISCARD auto rbegin() const noexcept -> const_reverse_iterator { return const_reverse_iterator(end()); }
+		MACRO_NODISCARD auto rbegin() const noexcept -> const_reverse_iterator { return const_reverse_iterator(end()); }
 
-		CSPAN_NODISCARD auto rend() noexcept -> reverse_iterator { return reverse_iterator(begin()); }
+		MACRO_NODISCARD auto rend() noexcept -> reverse_iterator { return reverse_iterator(begin()); }
 
-		CSPAN_NODISCARD auto rend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(begin()); }
+		MACRO_NODISCARD auto rend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(begin()); }
 
-		CSPAN_NODISCARD auto crbegin() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cend()); }
+		MACRO_NODISCARD auto crbegin() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cend()); }
 
-		CSPAN_NODISCARD auto crend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
+		MACRO_NODISCARD auto crend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
 
-		CSPAN_NODISCARD constexpr auto operator[](size_type p_index) const noexcept -> const_reference { return m_data[p_index]; }
+		MACRO_NODISCARD constexpr auto operator[](size_type p_index) const noexcept -> const_reference { return m_data[p_index]; }
 
-		CSPAN_NODISCARD auto operator[](size_type p_index) noexcept -> reference { return m_data[p_index]; }
+		MACRO_NODISCARD auto operator[](size_type p_index) noexcept -> reference { return m_data[p_index]; }
 
-		CSPAN_NODISCARD auto at(size_type p_index) -> reference
+		MACRO_NODISCARD auto at(size_type p_index) -> reference
 		{
 			if (p_index >= m_size)
 			{
@@ -291,7 +306,7 @@ namespace utils
 			return m_data[p_index];
 		}
 
-		CSPAN_NODISCARD constexpr auto at(size_type p_index) const -> const_reference
+		MACRO_NODISCARD constexpr auto at(size_type p_index) const -> const_reference
 		{
 			if (p_index >= m_size)
 			{
@@ -300,33 +315,34 @@ namespace utils
 			return m_data[p_index];
 		}
 
-		CSPAN_NODISCARD auto front() noexcept -> reference { return m_data[0]; }
+		MACRO_NODISCARD auto front() noexcept -> reference { return m_data[0]; }
 
-		CSPAN_NODISCARD auto front() const noexcept -> const_reference { return m_data[0]; }
+		MACRO_NODISCARD auto front() const noexcept -> const_reference { return m_data[0]; }
 
-		CSPAN_NODISCARD auto back() noexcept -> reference
+		MACRO_NODISCARD auto back() noexcept -> reference
 		{
 			assert(m_size > 0);
 			return m_data[m_size - 1];
 		}
 
-		CSPAN_NODISCARD auto back() const noexcept -> const_reference
+		MACRO_NODISCARD auto back() const noexcept -> const_reference
 		{
 			assert(m_size > 0);
 			return m_data[m_size - 1];
 		}
 
-		CSPAN_NODISCARD constexpr auto data() const noexcept -> pointer { return m_data; }
+		MACRO_NODISCARD constexpr auto data() const noexcept -> pointer { return m_data; }
 
-		CSPAN_NODISCARD auto data() noexcept -> pointer { return m_data; }
+		MACRO_NODISCARD auto data() noexcept -> pointer { return m_data; }
 
-		CSPAN_NODISCARD constexpr auto size() const noexcept -> size_type { return m_size; }
+		MACRO_NODISCARD constexpr auto size() const noexcept -> size_type { return m_size; }
 
-		CSPAN_NODISCARD auto size_bytes() const noexcept -> size_type { return m_size * sizeof(element_type); }
+		MACRO_NODISCARD auto size_bytes() const noexcept -> size_type { return m_size * sizeof(element_type); }
 
-		CSPAN_NODISCARD constexpr auto empty() const noexcept -> bool { return m_size == 0; }
+		MACRO_NODISCARD constexpr auto empty() const noexcept -> bool { return m_size == 0; }
 
-		template <size_type count_v = dynamic_extent> CSPAN_NODISCARD constexpr auto subspan(size_type p_offset, size_type p_count) const noexcept -> cspan<element_type, count_v>
+		template <size_type count_v = dynamic_extent>
+		MACRO_NODISCARD constexpr auto subspan(size_type p_offset, size_type p_count) const noexcept -> cspan<element_type, count_v>
 		{
 			assert(extent == dynamic_extent || (p_offset + p_count <= extent));
 			assert(p_offset <= m_size);
@@ -334,7 +350,7 @@ namespace utils
 			return cspan<element_t, count_v>(m_data + p_offset, p_count);
 		}
 
-		template <size_type count_v> CSPAN_NODISCARD constexpr auto subspan(size_type p_offset) const noexcept -> cspan<element_type, count_v>
+		template <size_type count_v> MACRO_NODISCARD constexpr auto subspan(size_type p_offset) const noexcept -> cspan<element_type, count_v>
 		{
 			constexpr size_type actual_count = (count_v == dynamic_extent) ? dynamic_extent : count_v;
 			assert(p_offset <= m_size);
@@ -348,57 +364,68 @@ namespace utils
 			return subspan<count_v>(p_offset, actual_count);
 		}
 
-		CSPAN_NODISCARD constexpr auto first(size_type p_count) const noexcept -> self_t { return self_t(m_data, std::min(p_count, m_size)); }
+		MACRO_NODISCARD constexpr auto first(size_type p_count) const noexcept -> self_t { return self_t(m_data, std::min(p_count, m_size)); }
 
-		CSPAN_NODISCARD constexpr auto last(size_type p_count) const noexcept -> self_t { return self_t(m_data + m_size - std::min(p_count, m_size), std::min(p_count, m_size)); }
+		MACRO_NODISCARD constexpr auto last(size_type p_count) const noexcept -> self_t
+		{
+			return self_t(m_data + m_size - std::min(p_count, m_size), std::min(p_count, m_size));
+		}
 
-		CSPAN_NODISCARD constexpr auto as_bytes() const noexcept -> cspan<const unsigned char>
+		MACRO_NODISCARD constexpr auto as_bytes() const noexcept -> cspan<const unsigned char>
 		{
 			return cspan<const unsigned char>(detail::reinterpret_cast_cspan<const unsigned char>(m_data), size_bytes());
 		}
 
-		template <bool flag = std::is_const<element_type>::value> CSPAN_NODISCARD auto as_writable_bytes() noexcept -> typename std::enable_if<!flag, cspan<unsigned char>>::type
+		template <bool flag = std::is_const<element_type>::value>
+		MACRO_NODISCARD auto as_writable_bytes() noexcept -> typename std::enable_if<!flag, cspan<unsigned char>>::type
 		{
 			return cspan<unsigned char>(detail::reinterpret_cast_cspan<unsigned char>(m_data), size_bytes());
 		}
 	};
 
-	template <typename element_t> CSPAN_NODISCARD constexpr auto make_span(element_t* p_data, std::uintmax_t p_size) noexcept -> cspan<element_t>
+	template <typename element_t> MACRO_NODISCARD constexpr auto make_span(element_t* p_data, std::uintmax_t p_size) noexcept -> cspan<element_t>
 	{
 		return cspan<element_t>(p_data, p_size);
 	}
 
 	// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
-	template <typename element_t, std::uintmax_t array_size> CSPAN_NODISCARD constexpr auto make_span(element_t (&p_arr)[array_size]) noexcept -> cspan<element_t, array_size>
+	template <typename element_t, std::uintmax_t array_size>
+	MACRO_NODISCARD constexpr auto make_span(element_t (&p_arr)[array_size]) noexcept -> cspan<element_t, array_size>
 	{
 		return cspan<element_t>(p_arr);
 	}
 
 	template <typename container_t>
-	CSPAN_NODISCARD constexpr auto make_span(container_t& p_container,
-											 typename std::enable_if<detail::is_container_compatible<container_t, typename container_t::value_type>::value>::type* /*p_unused*/
-											 = nullptr) noexcept -> cspan<typename container_t::value_type>
+	MACRO_NODISCARD constexpr auto
+	make_span(container_t& p_container,
+			  typename std::enable_if<detail::is_container_compatible<container_t, typename container_t::value_type>::value>::type* /*p_unused*/
+			  = nullptr) noexcept -> cspan<typename container_t::value_type>
 	{
 		return cspan<typename container_t::value_type>(p_container);
 	}
 
 	template <typename container_t>
-	CSPAN_NODISCARD constexpr auto make_span(const container_t& p_container,
-											 typename std::enable_if<detail::is_const_container_compatible<container_t, const typename container_t::value_type>::value>::type* /*p_unused*/
-											 = nullptr) noexcept -> cspan<const typename container_t::value_type>
+	MACRO_NODISCARD constexpr auto make_span(
+		const container_t& p_container,
+		typename std::enable_if<detail::is_const_container_compatible<container_t, const typename container_t::value_type>::value>::type* /*p_unused*/
+		= nullptr) noexcept -> cspan<const typename container_t::value_type>
 	{
 		return cspan<const typename container_t::value_type>(p_container);
 	}
 
-	template <class value_t, std::uintmax_t array_size> CSPAN_NODISCARD constexpr auto make_span(std::array<value_t, array_size>& p_array) noexcept -> cspan<value_t, array_size>
+	template <class value_t, std::uintmax_t array_size>
+	MACRO_NODISCARD constexpr auto make_span(std::array<value_t, array_size>& p_array) noexcept -> cspan<value_t, array_size>
 	{
 		return cspan<value_t, array_size>(p_array);
 	}
 
-	template <class value_t, std::uintmax_t array_size> CSPAN_NODISCARD constexpr auto make_span(const std::array<value_t, array_size>& p_array) noexcept -> cspan<const value_t, array_size>
+	template <class value_t, std::uintmax_t array_size>
+	MACRO_NODISCARD constexpr auto make_span(const std::array<value_t, array_size>& p_array) noexcept -> cspan<const value_t, array_size>
 	{
 		return cspan<const value_t, array_size>(p_array);
 	}
 }	 // namespace utils
+
+// NOLINTEND(modernize-type-traits, cppcoreguidelines-pro-bounds-pointer-arithmetic, modernize-avoid-c-arrays)
 
 #endif	  // CSPAN_HPP
