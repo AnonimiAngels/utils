@@ -62,17 +62,19 @@ namespace utils
 		read	 = 0x01,
 		write	 = 0x02,
 		truncate = 0x04,
-		create	 = 0x08
+		create	 = 0x08,
+		create_write = 0x0A,			// create | write
+		create_write_truncate = 0x0E	// create | write | truncate
 	};
 
 	inline auto operator|(open_mode p_lhs, open_mode p_rhs) -> open_mode
 	{
-		return static_cast<open_mode>(static_cast<std::uint8_t>(p_lhs) | static_cast<std::uint8_t>(p_rhs));
+		return static_cast<open_mode>(std::to_underlying(p_lhs) | std::to_underlying(p_rhs));
 	}
 
 	inline auto operator&(open_mode p_lhs, open_mode p_rhs) -> bool
 	{
-		return (static_cast<std::uint8_t>(p_lhs) & static_cast<std::uint8_t>(p_rhs)) != 0;
+		return (std::to_underlying(p_lhs) & std::to_underlying(p_rhs)) != 0;
 	}
 
 	enum class file_error : std::uint8_t
