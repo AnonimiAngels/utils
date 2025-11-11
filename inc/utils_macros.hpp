@@ -85,14 +85,14 @@
 		#define MACRO_THROW_1(exception)                                                                                                             \
 			do                                                                                                                                       \
 			{                                                                                                                                        \
-				std::printf("Fatal error\n");                                                                                                        \
+				std::println("Fatal error, {}", ##exception);                                                                                        \
 				std::abort();                                                                                                                        \
 			} while (0)
 
 		#define MACRO_THROW_2(exception, error)                                                                                                      \
 			do                                                                                                                                       \
 			{                                                                                                                                        \
-				std::printf("Fatal error: %s\n", error.c_str());                                                                                     \
+				std::println("Fatal error: {}", error);                                                                                              \
 				std::abort();                                                                                                                        \
 			} while (0)
 
