@@ -45,6 +45,21 @@
 		#endif
 	#endif
 
+	// MACRO_MAYBE_UNUSED
+	#if MACRO_CXX17_ENABLED
+		#define MACRO_MAYBE_UNUSED [[maybe_unused]]
+	#else
+		#if defined(__has_cpp_attribute)
+			#if __has_cpp_attribute(maybe_unused) && MACRO_CXX17_ENABLED
+				#define MACRO_MAYBE_UNUSED [[maybe_unused]]
+			#else
+				#define MACRO_MAYBE_UNUSED
+			#endif
+		#else
+			#define MACRO_MAYBE_UNUSED
+		#endif
+	#endif
+
 	// MACRO_REQUIRE_CONSTRAINTS
 	#if MACRO_CXX20_ENABLED
 		#define MACRO_REQUIRE_CONSTRAINTS require
@@ -85,7 +100,7 @@
 		#define MACRO_THROW_1(exception)                                                                                                             \
 			do                                                                                                                                       \
 			{                                                                                                                                        \
-				std::println("Fatal error, {}", ##exception);                                                                                        \
+				std::println("Fatal error, {}", #exception);                                                                                         \
 				std::abort();                                                                                                                        \
 			} while (0)
 
